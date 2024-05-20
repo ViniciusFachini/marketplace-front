@@ -15,6 +15,9 @@
       <nuxt-icon v-if="productData.is_seller_verified" name="verified" />
       <span v-if="productData.is_seller_verified" class="verified-text">Vendedor Verificado</span>
     </div>
+    <div v-if="productPremium" class="premium-stamp">
+      <nuxt-icon name="premium" />
+    </div>
   </li>
 </template>
 
@@ -23,6 +26,22 @@
     width: 100%;
     border-radius: 10px;
     background: #fff;
+    position: relative;
+
+    .premium-stamp {
+      position: absolute;
+      top: 10px;
+      z-index: 999;
+      left: 10px;
+      background-color: #F1F1F1;
+      padding: 8px;
+      border-radius: 50%;
+      color: #3AA8F8;
+    }
+
+    &:hover {
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    }
 
     &__is-verified {
       padding: 16px 8px;
@@ -38,6 +57,7 @@
       font-weight: 500;
       display: flex;
       align-items: center;
+      text-align: left;
       justify-content: start;
     }
     &__price-condition{
@@ -55,12 +75,16 @@
         font-size: 12px;
         font-weight: bold;
         letter-spacing: 1px;
+        line-height: 150%;
         color: white;
         &.new {
           background-color: #8cd995;
         }
         &.used {
           background-color: #FEC171;
+        }
+        &.semi-new {
+          background-color: #70a9ff;
         }
       }
     }
@@ -71,7 +95,6 @@
         aspect-ratio: 1/1;
         object-fit: cover;
         border-radius: 10px 10px 0px 0px;
-        padding: 16px;
         &.last {
           opacity: 0;
           position: absolute!important;
@@ -107,13 +130,18 @@ export default {
   data() {
     return {
       productData: this.productInfo,
-      activeIndex: null
+      activeIndex: null,
+      productPremium: ''
     }
   },
   methods: {
     showImage(index) {
       this.activeIndex = index;
     },
+  },
+  async mounted() {
+    const productData = await this.productData;
+    this.productPremium = productData.categories.map(item => item.category_id).includes(13)
   }
 };
 </script>

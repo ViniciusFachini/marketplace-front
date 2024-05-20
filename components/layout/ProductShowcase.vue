@@ -1,16 +1,18 @@
 <template>
 <div class="showcase-container">
-  <div class="showcase-title-wrapper container" v-if="showcaseInfo.title">
-    <h3 class="showcase-title">{{ showcaseInfo.title }}</h3>
+  <div class="showcase-title-wrapper" v-if="showcaseInfo.title">
+    <h3 class="showcase-title container">{{ showcaseInfo.title }}</h3>
   </div>
-  <Carousel class="container" :items-to-show="5">
-    <Slide v-for="(product, index) in showcaseItems" :key="index">
-      <ProductCard :productInfo="product" />
-    </Slide>
-    <template #addons>
-      <Navigation />
-    </template>
-  </Carousel>
+  <div class="container">
+    <Carousel v-bind="settings" :breakpoints="breakpoints">
+      <Slide v-for="(product, index) in showcaseItems" :key="index">
+        <ProductCard :productInfo="product" />
+      </Slide>
+      <template v-if="arrows" #addons>
+        <Navigation />
+      </template>
+    </Carousel>
+  </div>
 </div>
 </template>
 
@@ -18,10 +20,12 @@
 .showcase-title-wrapper {
   text-align: left;
   width: 100%;
+  margin-left: 10px;
   h3 {
     font-size: 24px;
     font-weight: 500;
     line-height: 150%;
+    margin-bottom: 16px;
   }
 }
 </style>
@@ -30,11 +34,33 @@
 export default {
   props: {
     showcaseId: Number,
+    arrows: Boolean,
+    itemsToShow: Number,
+    infinite: Boolean
   },
   data() {
     return {
       showcaseInfo: {}, // Changed from an array to an object
       showcaseItems: [], // Renamed from showcaseItem to showcaseItems
+      settings: {
+        itemsToShow: 1,
+        snapAlign: "center",
+        itemsToScroll: 1,
+      },
+      breakpoints: {
+      424: {
+        itemsToShow: 2,
+        snapAlign: "start"
+      },
+      991: {
+        itemsToShow: 3,
+        snapAlign: "start"
+      },
+      1200: {
+        itemsToShow: 4,
+        snapAlign: "start"
+      },
+    },
     };
   },
   async mounted() {
@@ -48,9 +74,10 @@ export default {
       }
     } catch (error) {
       console.error('Error fetching showcase:', error);
-    } finally {
-      console.log(this.showcaseItems)
-    }
+    } 
+    // finally {
+    //   console.log(this.showcaseItems)
+    // }
   },
 };
 </script>

@@ -14,7 +14,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                 response = await response.json()
                 if (response.token) {
                     update(response)
-                    console.log(session)
                 }
             }
         }

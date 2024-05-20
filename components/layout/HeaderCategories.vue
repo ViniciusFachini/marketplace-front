@@ -13,12 +13,20 @@
             class="category-item"
           >
             <span v-if="!category.parent_category_id" class="category">
-              <a @click="goToCategory(category.name, category.id)">{{ category.name }}</a>
+              <a @click="goToCategory(category.name, category.id)">{{
+                category.name
+              }}</a>
             </span>
             <ul class="second-level">
-              <li v-for="child in category.children" :key="child.id" class="category-item">
+              <li
+                v-for="child in category.children"
+                :key="child.id"
+                class="category-item"
+              >
                 <span class="category">
-                  <a @click="goToCategory(child.name, child.id)">{{ child.name }}</a>
+                  <a @click="goToCategory(child.name, child.id)">{{
+                    child.name
+                  }}</a>
                 </span>
               </li>
             </ul>
@@ -91,23 +99,24 @@
       cursor: pointer;
       &:hover {
         color: #f83a53;
+        font-weight: 600;
       }
     }
     .category-item {
       width: 100%;
       display: block;
       .category {
-      width: 100%;
-      display: block;
-      &:hover {
-      ~ .second-level {
-        visibility: visible;
-        opacity: 1;
-        transform: translate(0px);
-        transition: all .2s linear;
+        width: 100%;
+        display: block;
+        &:hover {
+          ~ .second-level {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(0px);
+            transition: all 0.2s linear;
+          }
+        }
       }
-    }
-    }
     }
     &.second-level {
       transition: none;
@@ -149,21 +158,23 @@
 </style>
 
 <script>
-import { useUserStore } from '@/store/user'
+import { useUserStore } from "@/store/user";
 export default {
   props: {
     categories: Array,
   },
   data() {
     return {
-      userStore: useUserStore()
-    }
+      userStore: useUserStore(),
+    };
   },
   methods: {
     goToCategory(cat, id) {
-      this.userStore.setLastCategory(cat, id)
+      this.userStore.setLastCategory(cat, id);
       const router = useRouter();
-      router.push(`/categorias/${cat.toLowerCase().replace(' ', '-').replace("'", '')}`)
+      router.push(
+        `/categorias/${cat.toLowerCase().replace(" ", "-").replace("'", "")}`
+      );
     },
   },
 };
