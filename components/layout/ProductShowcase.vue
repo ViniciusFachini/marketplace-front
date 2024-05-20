@@ -48,7 +48,7 @@ export default {
         itemsToScroll: 1,
       },
       breakpoints: {
-      424: {
+      540: {
         itemsToShow: 2,
         snapAlign: "start"
       },
@@ -60,6 +60,10 @@ export default {
         itemsToShow: 4,
         snapAlign: "start"
       },
+      1439: {
+        itemsToShow: 5,
+        snapAlign: "start"
+      }
     },
     };
   },

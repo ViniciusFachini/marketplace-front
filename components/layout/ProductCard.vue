@@ -1,6 +1,6 @@
 <template>
   <li class="product-item">
-    <figure v-if="productData.images" class="product-item__figure">
+    <figure v-if="productData.images.length > 0" class="product-item__figure">
       <img v-for="(image, index) in productData.images.slice(0, 2)" :key="image.id" class="product-item__figure-img" :class="index == 0 ? 'first' : 'last'" :src="image.imageUrl" alt="" @mouseover="showImage(index)" />
     </figure>
     <figure v-else class="product-item__figure">
@@ -141,7 +141,8 @@ export default {
   },
   async mounted() {
     const productData = await this.productData;
-    this.productPremium = productData.categories.map(item => item.category_id).includes(13)
+    // this.productPremium = productData.categories && productData.categories.length > 0 ? productData.categories.map(item => item.category_id).includes(13) : false
+    console.log(productData)
   }
 };
 </script>
