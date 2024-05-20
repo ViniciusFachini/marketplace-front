@@ -4,11 +4,11 @@
     :disabled="disabled"
     @click="handleClick"
   >
-    {{ label }}
+    <slot>{{ label }}</slot>
   </button>
 </template>
-  
-  <script>
+
+<script>
 export default {
   name: "ButtonComponent",
   props: {
@@ -44,8 +44,8 @@ export default {
   },
 };
 </script>
-  
-  <style scoped>
+
+<style scoped>
 /* Basic styling for the button component */
 .button {
   padding: 16px 20px;
@@ -82,4 +82,3 @@ export default {
   opacity: 0.6;
 }
 </style>
-  

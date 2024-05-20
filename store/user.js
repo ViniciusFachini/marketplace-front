@@ -47,7 +47,6 @@ export const useUserStore = defineStore({
     async setLastCategory(categoryName, categoryId) {
       this.user.categoryHistory.push({ name: categoryName, id: categoryId })
       this.updateLocalStorage(await this.user)
-      console.log(await this.user)
       return await this.user
     },
     updateLocalStorage(data = {}) {
