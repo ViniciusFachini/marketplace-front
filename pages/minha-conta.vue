@@ -21,6 +21,7 @@
                     <span class="not-verified" v-else>
                         Usuário Não Verificado
                     </span>
+                    <span v-if="!userInfo.userData.verified" class="verify">Solicite a Verificação</span>
                 </div>
                 <div class="user-details__since">Membro desde {{memberSince.day}} de {{memberSince.month}} de {{memberSince.year}}</div>
               </div>
@@ -30,6 +31,15 @@
             <button>Editar Perfil</button>
           </div>
         </div>
+        <section class="sales-earnings container">
+          <h3 class="sales-earnings__title">Ganhos e Vendas</h3>
+          <div class="sales-earnings__content">
+            <DisplaySaleInfo label="Ganhos Totais" :value="userInfo.userData.totalSalesValue" type="price" />
+            <DisplaySaleInfo label="Produtos Vendidos" :value="userInfo.userData.totalSales" type="int" />
+            <DisplaySaleInfo label="Produtos Disponíveis" :value="userInfo.userData.availableProducts" type="int" />
+            <DisplaySaleInfo label="Produtos Anunciados" :value="userInfo.userData.announcedProducts" type="int" />
+          </div>
+        </section>
       </div>
     </main>
     <main v-else class="not-authenticated">
@@ -42,6 +52,23 @@
 
 <style lang="scss" scoped>
 main {
+  .sales-earnings {
+    &__title {
+      font-size: 18px;
+      padding-block: 40px 16px;
+      padding-left: 10px;
+      font-weight: 600;
+    }
+    &__content {
+      display: flex;
+      align-items: center;
+      justify-content: stretch;
+      gap: 20px;
+      div {
+        flex: 1 1 100%;
+      }
+    }
+  }
   .user-landscape {
     width: 100dvw;
     height: 30vh;
@@ -69,19 +96,40 @@ main {
                     color: white;
                 }
                 &__verified {
-                    color: #21cc35;
-                    background-color: white;
-                    display: flex;
-                    align-items: center;
-                    justify-content: start;
-                    padding: 4px 8px;
-                    border-radius: 5px;
-                    .verified {
-                        line-height: 1.5;
+                  display: flex;
+                  align-items: center;
+                  justify-content: start;
+                  gap: 16px;
+                  .verified {
+                      color: #21cc35;
+                      background-color: white;
+                      display: flex;
+                      align-items: center;
+                      justify-content: start;
+                      padding: 4px 8px;
+                      border-radius: 5px;
+                      line-height: 1.6;
+                      gap: 8px;
                     }
                     .not-verified {
+                      background-color: white;
+                      display: flex;
+                      align-items: center;
+                      justify-content: start;
+                      padding: 4px 8px;
+                      border-radius: 5px;
+                      line-height: 1.5;
                       color: #f83a53;
                       font-weight: 600;
+                    }
+                    .verify {
+                      background: transparent;
+                      color: white;
+                      cursor: pointer;
+                      &:hover {
+                        text-decoration: underline;
+                        text-underline-offset: 4px;
+                      }
                     }
                 }
                 &__since {

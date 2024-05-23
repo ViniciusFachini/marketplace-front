@@ -45,14 +45,9 @@
         </div>
         <div class="product-info">
           <div class="product-info__name-verified-sku">
-            <div class="product-info__name-verified-sku--verified">
-              <nuxt-icon
-                v-if="productInfo.is_seller_verified"
-                name="verified"
-              />
-              <span v-if="productInfo.is_seller_verified" class="verified-text"
-                >Vendedor Verificado</span
-              >
+            <div v-if="productInfo.is_seller_verified" class="product-info__name-verified-sku--verified">
+              <nuxt-icon name="verified"/>
+              <span class="verified-text">Vendedor Verificado</span>
             </div>
             <h1
               class="product-info__name-verified-sku--name"
@@ -93,13 +88,13 @@
                 <div class="seller-container__info--name">
                   {{ sellerInfo.name }}
                 </div>
-                <div class="seller-container__info--location">
+                <div class="seller-container__info--location" v-if="sellerAddress">
                   <nuxt-icon name="location" />
                   {{ sellerAddress.city }} - {{ sellerAddress.state }}
                 </div>
                 <div class="seller-container__info--transactions">
                   <span class="announced"
-                    >{{ sellerInfo.totalProducts }} Produtos Anunciados</span
+                    >{{ sellerInfo.announcedProducts }} Produtos Anunciados</span
                   >
                   <span class="canceled"
                     >{{ sellerInfo.canceledSales }} Vendas Canceladas</span
@@ -270,6 +265,7 @@
         border-radius: 20px;
         img {
           max-width: 140px;
+          border-radius: 50%;
         }
         &__info {
           height: 100%;
@@ -283,11 +279,13 @@
             justify-content: center;
             flex-direction: column;
             gap: 8px;
+            margin-top: 10px;
           }
           &--name {
             font-size: 18px;
             font-weight: 500;
             transition: all 0.1s linear;
+            margin-bottom: 2px;
             cursor: pointer;
             &:hover {
               color: #f83a53;
@@ -296,7 +294,6 @@
           &--location {
             font-size: 12px;
             color: #acacac;
-            padding-block: 2px 10px;
             span {
               width: 20px;
             }
@@ -412,9 +409,8 @@ export default {
       `products/${this.productInfo.id}/seller`
     );
     this.sellerInfo = await response;
-    this.sellerAddress = await response.address;
+    this.sellerAddress = await response.addresses.main;
     this.relatedCategories = await fetchItem.categories.slice(0, 1);
-    console.log(this.relatedCategories);
     this.productPremium =
       this.productInfo.categories &&
       Array.isArray(this.productInfo.categories) &&
