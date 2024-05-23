@@ -1,5 +1,6 @@
 <script setup>
-const route = useRoute();
+const { session, refresh, update, reset } = await useSession();
+console.log(session)
 </script>
 
 <template>
@@ -25,7 +26,7 @@ const route = useRoute();
       :showcaseId="3"
     />
     <DisclaimerBanner />
-    <ProductDisplay :categoryId="13" title="Anúncios Patrocinados" catName="Patrocinados" />
+    <ProductDisplay :categoryId="13" title="Anúncios Patrocinados" catName="Patrocinados" :limit="20" />
   </main>
 </template>
 

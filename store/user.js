@@ -1,5 +1,7 @@
-// store/user.ts
 import { defineStore } from 'pinia'
+
+// Check if localStorage is available
+const isLocalStorageAvailable = typeof localStorage !== 'undefined';
 
 function mergeObjects(obj1, obj2) {
   const mergedObj = {};
@@ -39,24 +41,26 @@ function mergeObjects(obj1, obj2) {
 export const useUserStore = defineStore({
   id: 'user',
   state: () => ({
-    user: JSON.parse(localStorage.getItem('userInfo')) || {
-      categoryHistory: []
-    }
+    user: isLocalStorageAvailable ? JSON.parse(localStorage.getItem('userInfo')) || {categoryHistory: []} : {categoryHistory: []}
   }),
   actions: {
     async setLastCategory(categoryName, categoryId) {
       this.user.categoryHistory.push({ name: categoryName, id: categoryId })
-      this.updateLocalStorage(await this.user)
+      if (isLocalStorageAvailable) {
+        this.updateLocalStorage(await this.user)
+      }
       return await this.user
     },
     updateLocalStorage(data = {}) {
-      const currentData = JSON.parse(localStorage.getItem('userInfo'))
-      if (currentData) {
-        const mergedData = mergeObjects(data, currentData)
-        localStorage.removeItem('userInfo')
-        localStorage.setItem('userInfo', JSON.stringify(mergedData))
-      } else {
-        localStorage.setItem('userInfo', JSON.stringify(data))
+      if (isLocalStorageAvailable) {
+        const currentData = JSON.parse(localStorage.getItem('userInfo'))
+        if (currentData) {
+          const mergedData = mergeObjects(data, currentData)
+          localStorage.removeItem('userInfo')
+          localStorage.setItem('userInfo', JSON.stringify(mergedData))
+        } else {
+          localStorage.setItem('userInfo', JSON.stringify(data))
+        }
       }
     }
   }

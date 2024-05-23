@@ -11,11 +11,11 @@
                 :productInfo="product"
             />
             </ul>
-            <div class="button-container">
-                <Button @click="goToCategory(catName, categoryId)" type="button">
+            <div v-if="catName" class="button-container">
+                <button @click="goToCategory(catName, categoryId)" type="button">
                     <span class="button-text">Ver Mais</span>
                     <nuxt-icon name="arrow-right" />
-                </Button>
+                </button>
             </div>
         </div>
     </div>
@@ -54,6 +54,18 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 16px;
+            background-color: #F83A53;
+            color: white;
+            &:hover {
+                background-color: #e93048;
+            }
         }
     }
     .section-title {
@@ -91,7 +103,8 @@ export default {
   props: {
     title: String,
     categoryId: Number,
-    catName: String
+    catName: String,
+    limit: Number,
   },
   data() {
     return {
@@ -110,7 +123,11 @@ export default {
   },
   async mounted() {
       const fetchItens = await this.$useFetch(`categories/${this.$props.categoryId}/products`);
-      this.products = fetchItens;
+      if(this.$props.limit) {
+          this.products = fetchItens.slice(0, this.$props.limit);
+      } else {
+        this.products = fetchItens
+      }
   },
 };
 </script>

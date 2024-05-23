@@ -29,7 +29,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                 const dateNow = new Date()
                 const isTokenValid = !dateObject > dateNow
                 if (isTokenValid) {
-                    // router.push('/login')
                     reset()
                     return false
                 } else {
@@ -65,6 +64,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                     const router = useRouter()
                     // router.push('/login')
                 }
+            },
+            isAuthenticated: async () => {
+                return session.value.token && validateToken()
             },
             useFetch: async (endpoint, method = 'get') => {
                 const config = {

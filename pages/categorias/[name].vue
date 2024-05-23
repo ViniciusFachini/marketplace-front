@@ -16,6 +16,9 @@
 </template>
 
 <style lang="scss" scoped>
+main {
+  background-color: #f1f1f1;
+}
 .products-container {
   grid-template-columns: repeat(4, 1fr);
   display: grid;

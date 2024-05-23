@@ -1,6 +1,9 @@
 <template>
 <div class="showcase-container">
-  <div class="showcase-title-wrapper" v-if="showcaseInfo.title">
+  <div class="showcase-title-wrapper" v-if="title">
+    <h3 class="showcase-title container">{{ title }}</h3>
+  </div>
+  <div class="showcase-title-wrapper" v-else>
     <h3 class="showcase-title container">{{ showcaseInfo.title }}</h3>
   </div>
   <div class="container">
@@ -36,7 +39,8 @@ export default {
     showcaseId: Number,
     arrows: Boolean,
     itemsToShow: Number,
-    infinite: Boolean
+    infinite: Boolean,
+    title: String
   },
   data() {
     return {
