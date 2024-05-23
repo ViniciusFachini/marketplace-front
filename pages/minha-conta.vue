@@ -6,7 +6,7 @@
           <section class="user-info__start">
             <figure class="user-info__start--image">
               <img
-                src="https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png"
+                :src="userInfo.userData.profilePicture ? userInfo.userData.profilePicture : 'https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png'"
                 alt=""
               />
             </figure>
@@ -78,6 +78,10 @@ main {
                     border-radius: 5px;
                     .verified {
                         line-height: 1.5;
+                    }
+                    .not-verified {
+                      color: #f83a53;
+                      font-weight: 600;
                     }
                 }
                 &__since {
@@ -170,7 +174,6 @@ export default {
     const { session } = await useSession();
     this.userInfo = await session
     this.extractDateComponents(this.userInfo.userData.createdAt)
-    console.log(this.memberSince)
     this.authenticated = await this.$isAuthenticated();
   },
 };

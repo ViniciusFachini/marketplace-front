@@ -34,7 +34,6 @@ export default {
       }
       this.$emit("cart-toggled", this.isActive);
       document.body.classList.toggle("no-overflow", this.isActive);
-      console.log(this.isActive);
     },
   },
 };

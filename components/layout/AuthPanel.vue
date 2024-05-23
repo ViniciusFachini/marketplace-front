@@ -87,7 +87,6 @@ export default {
     },
     async redirect() {
       const result = await this.$validateToken();
-      console.log(result);
         if (result.error) {
           this.$router.go("/");
         } else {
