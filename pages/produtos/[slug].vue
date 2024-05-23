@@ -406,8 +406,9 @@ export default {
     );
     this.productInfo = await fetchItem;
     const response = await this.$useFetch(
-      `products/${this.productInfo.id}/seller`
+      `users/${this.productInfo.seller_id}/info`
     );
+    console.log(this.productInfo)
     this.sellerInfo = await response;
     this.sellerAddress = await response.addresses.main;
     this.relatedCategories = await fetchItem.categories.slice(0, 1);

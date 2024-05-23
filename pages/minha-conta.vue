@@ -6,24 +6,35 @@
           <section class="user-info__start">
             <figure class="user-info__start--image">
               <img
-                :src="userInfo.userData.profilePicture ? userInfo.userData.profilePicture : 'https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png'"
+                :src="
+                  userInfo.profilePicture
+                    ? userInfo.profilePicture
+                    : 'https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png'
+                "
                 alt=""
               />
             </figure>
             <div class="user-info__start--info">
               <div class="user-details">
-                <div class="user-details__nome">{{userInfo.userData.name}}</div>
-                <div class="user-details__verified">
-                    <span class="verified" v-if="userInfo.userData.verified">
-                        <nuxt-icon name="verified" />
-                        Usuário Verificado
-                    </span>
-                    <span class="not-verified" v-else>
-                        Usuário Não Verificado
-                    </span>
-                    <span v-if="!userInfo.userData.verified" class="verify">Solicite a Verificação</span>
+                <div class="user-details__nome">
+                  {{ userInfo.name }}
                 </div>
-                <div class="user-details__since">Membro desde {{memberSince.day}} de {{memberSince.month}} de {{memberSince.year}}</div>
+                <div class="user-details__verified">
+                  <span class="verified" v-if="userInfo.verified">
+                    <nuxt-icon name="verified" />
+                    Usuário Verificado
+                  </span>
+                  <span class="not-verified" v-else>
+                    Usuário Não Verificado
+                  </span>
+                  <span v-if="!userInfo.verified" class="verify"
+                    >Solicite a Verificação</span
+                  >
+                </div>
+                <div class="user-details__since">
+                  Membro desde {{ memberSince.day }} de
+                  {{ memberSince.month }} de {{ memberSince.year }}
+                </div>
               </div>
             </div>
           </section>
@@ -31,16 +42,44 @@
             <button>Editar Perfil</button>
           </div>
         </div>
-        <section class="sales-earnings container">
-          <h3 class="sales-earnings__title">Ganhos e Vendas</h3>
-          <div class="sales-earnings__content">
-            <DisplaySaleInfo label="Ganhos Totais" :value="userInfo.userData.totalSalesValue" type="price" />
-            <DisplaySaleInfo label="Produtos Vendidos" :value="userInfo.userData.totalSales" type="int" />
-            <DisplaySaleInfo label="Produtos Disponíveis" :value="userInfo.userData.availableProducts" type="int" />
-            <DisplaySaleInfo label="Produtos Anunciados" :value="userInfo.userData.announcedProducts" type="int" />
-          </div>
-        </section>
       </div>
+      <section class="sales-earnings container">
+        <h3 class="sales-earnings__title">Ganhos e Vendas</h3>
+        <div class="sales-earnings__content">
+          <DisplaySaleInfo
+            label="Ganhos Totais"
+            :value="userInfo.totalSalesValue"
+            type="price"
+          />
+          <DisplaySaleInfo
+            label="Produtos Vendidos"
+            :value="userInfo.totalSales"
+            type="int"
+          />
+          <DisplaySaleInfo
+            label="Produtos Disponíveis"
+            :value="userInfo.availableProducts"
+            type="int"
+          />
+          <DisplaySaleInfo
+            label="Produtos Anunciados"
+            :value="userInfo.announcedProducts"
+            type="int"
+          />
+        </div>
+      </section>
+      <section class="my-products container">
+        <section class="my-products__title-section">
+          <h3 class="my-products__title-section__title">Meus Produtos</h3>
+          <span class="add-product">
+            <nuxt-icon name="plus" />
+            Adicionar Produto
+          </span>
+        </section>
+        <ul class="my-products__content">
+          <ProductTable :products="userProducts" />
+        </ul>
+      </section>
     </main>
     <main v-else class="not-authenticated">
       Você não está logado! Clique Aqui para
@@ -52,94 +91,182 @@
 
 <style lang="scss" scoped>
 main {
-  .sales-earnings {
+  .my-products {
+    &__title-section {
+      padding-block: 40px 16px;
+      padding-inline: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      &__title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .add-product {
+        color: white;
+        background-color: #5179ff;
+        padding: 8px 16px;
+        line-height: 2;
+        display: flex;
+        align-items: center;
+        border-radius: 5px;
+        justify-content: center;
+        cursor: pointer;
+        transition: all .2s linear;
+        gap: 8px;
+        &:hover {
+          background-color: darken(#5179ff, 10%);
+        }
+      }
+    }
+    // &__content {
+    //   grid-template-columns: repeat(4, 1fr) !important;
+    //   display: grid !important;
+    //   gap: 20px !important;
+    //   padding-bottom: 64px;
+    //   @media screen and (max-width: 992px) {
+    //     grid-template-columns: repeat(3, 1fr) !important;
+    //   }
+    //   @media screen and (max-width: 768px) {
+    //     grid-template-columns: repeat(2, 1fr) !important;
+    //   }
+    //   @media screen and (max-width: 425px) {
+    //     grid-template-columns: repeat(1, 1fr) !important;
+    //   }
+    // }
+  }
+  .sales-earnings,
+  .my-products {
     &__title {
       font-size: 18px;
       padding-block: 40px 16px;
-      padding-left: 10px;
+      padding-inline: 10px;
       font-weight: 600;
     }
     &__content {
       display: flex;
-      align-items: center;
-      justify-content: stretch;
+      align-items: stretch;
+      justify-content: space-between;
       gap: 20px;
+      flex-wrap: wrap;
+      @media screen and (max-width: 600px) {
+        gap: 8px;
+      }
       div {
-        flex: 1 1 100%;
+        @media screen and (max-width: 991px) {
+          flex-direction: column;
+          row-gap: 10px;
+          justify-content: center;
+          flex: 1 1 30%;
+        }
+        flex: 1 1 20%;
       }
     }
   }
   .user-landscape {
     width: 100dvw;
     height: 30vh;
+    @media screen and (max-width: 767px) {
+      height: auto;
+    }
     background-color: rgba(0, 0, 0, 0.5);
     .user-info {
       display: flex;
       height: 100%;
       align-items: center;
       justify-content: space-between;
+      @media screen and (max-width: 991px) {
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px;
+      }
+      @media screen and (max-width: 767px) {
+        padding: 20px;
+      }
       &__start {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 40px;
-        &--info {
-            .user-details {
-                display: flex;
-                align-items: flex-start;
-                justify-content: center;
-                flex-direction: column;
-                gap: 12px;
-                &__nome {
-                    font-size: 32px;
-                    font-weight: 600;
-                    color: white;
-                }
-                &__verified {
-                  display: flex;
-                  align-items: center;
-                  justify-content: start;
-                  gap: 16px;
-                  .verified {
-                      color: #21cc35;
-                      background-color: white;
-                      display: flex;
-                      align-items: center;
-                      justify-content: start;
-                      padding: 4px 8px;
-                      border-radius: 5px;
-                      line-height: 1.6;
-                      gap: 8px;
-                    }
-                    .not-verified {
-                      background-color: white;
-                      display: flex;
-                      align-items: center;
-                      justify-content: start;
-                      padding: 4px 8px;
-                      border-radius: 5px;
-                      line-height: 1.5;
-                      color: #f83a53;
-                      font-weight: 600;
-                    }
-                    .verify {
-                      background: transparent;
-                      color: white;
-                      cursor: pointer;
-                      &:hover {
-                        text-decoration: underline;
-                        text-underline-offset: 4px;
-                      }
-                    }
-                }
-                &__since {
-                    color: white;
-                    font-weight: 500;
-                }
+        @media screen and (max-width: 767px) {
+          flex-direction: column;
+          padding-bottom: 32px;
+          gap: 20px;
+          figure {
+            img {
+              max-width: 300px;
             }
+          }
+        }
+        &--info {
+          .user-details {
             display: flex;
+            align-items: flex-start;
+            justify-content: center;
             flex-direction: column;
-            align-content: center;
+            gap: 12px;
+            @media screen and (max-width: 767px) {
+              align-items: center;
+              gap: 20px;
+              &__nome {
+                text-align: center;
+              }
+            }
+            &__nome {
+              font-size: 32px;
+              font-weight: 600;
+              color: white;
+            }
+            &__verified {
+              display: flex;
+              align-items: center;
+              justify-content: start;
+              gap: 16px;
+              @media screen and (max-width: 445px) {
+                flex-direction: column;
+                gap: 8px;
+              }
+              .verified {
+                color: #21cc35;
+                background-color: white;
+                display: flex;
+                align-items: center;
+                justify-content: start;
+                padding: 4px 8px;
+                border-radius: 5px;
+                line-height: 1.6;
+                gap: 8px;
+              }
+              .not-verified {
+                background-color: white;
+                display: flex;
+                align-items: center;
+                justify-content: start;
+                padding: 4px 8px;
+                border-radius: 5px;
+                line-height: 1.5;
+                color: #f83a53;
+                font-weight: 600;
+              }
+              .verify {
+                background: transparent;
+                color: white;
+                cursor: pointer;
+                &:hover {
+                  text-decoration: underline;
+                  text-underline-offset: 4px;
+                }
+              }
+            }
+            &__since {
+              color: white;
+              font-weight: 500;
+              text-align: center;
+            }
+          }
+          display: flex;
+          flex-direction: column;
+          align-content: center;
         }
         &--image {
           img {
@@ -155,17 +282,20 @@ main {
       }
       .edit-profile {
         button {
-            padding: 16px 32px;
-            color: white;
-            background-color: #222;
-            border: 1px solid #222;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all .2s linear;
-            &:hover {
-                background-color: #444;
-                border-color: #444;
-            }
+          padding: 16px 32px;
+          color: white;
+          background-color: #222;
+          border: 1px solid #222;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.2s linear;
+          @media screen and (max-width: 767px) {
+            padding: 8px 16px;
+          }
+          &:hover {
+            background-color: #444;
+            border-color: #444;
+          }
         }
       }
     }
@@ -194,8 +324,8 @@ export default {
     return {
       authenticated: false,
       showAuthPanel: false,
-      userInfo: {},
-      memberSince: {}
+      session: {},
+      memberSince: {},
     };
   },
   methods: {
@@ -206,22 +336,37 @@ export default {
       this.showAuthPanel = false;
     },
     extractDateComponents(dateString) {
-        const date = new Date(dateString);
-        const day = date.getUTCDate();
-        const monthIndex = date.getUTCMonth(); // getUTCMonth returns 0-based month
-        const year = date.getUTCFullYear();
-        const monthNamesInPortuguese = [
-        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-        ];
-        const month = monthNamesInPortuguese[monthIndex];
-        this.memberSince = {day, month, year}
-    }
+      const date = new Date(dateString);
+      const day = date.getUTCDate();
+      const monthIndex = date.getUTCMonth(); // getUTCMonth returns 0-based month
+      const year = date.getUTCFullYear();
+      const monthNamesInPortuguese = [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro",
+      ];
+      const month = monthNamesInPortuguese[monthIndex];
+      this.memberSince = { day, month, year };
+    },
   },
   async mounted() {
     const { session } = await useSession();
-    this.userInfo = await session
-    this.extractDateComponents(this.userInfo.userData.createdAt)
+    this.session = await session;
+    this.userInfo = await this.$useFetch(`users/${this.session.user.id}/info`);
+    this.userProducts = await this.$useFetch(
+      `users/${this.session.user.id}/products`
+    );
+    console.log(this.userInfo, this.userProducts);
+    this.extractDateComponents(this.userInfo.createdAt);
     this.authenticated = await this.$isAuthenticated();
   },
 };
