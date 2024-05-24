@@ -60,9 +60,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                         console.error('Fetch error:', error.message);
                         throw error;
                     }
-                } else {
-                    const router = useRouter()
-                    // router.push('/login')
                 }
             },
             isAuthenticated: async () => {

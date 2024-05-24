@@ -29,7 +29,7 @@
             <form
               @submit.prevent="handleLogin(this.loginEmail, this.loginPassword)"
             >
-              <TextInput
+              <InputComponent
                 v-model="loginEmail"
                 type="email"
                 label="Email"
@@ -37,7 +37,7 @@
                 placeholder="Digite Seu Email"
                 :input-full="true"
               />
-              <TextInput
+              <InputComponent
                 v-model="loginPassword"
                 type="password"
                 label="Senha"

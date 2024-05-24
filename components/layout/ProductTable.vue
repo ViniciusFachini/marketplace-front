@@ -12,7 +12,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="product in products" :key="product.id">
+        <tr v-for="product in displayedProducts" :key="product.id">
           <td>{{ product.name }}</td>
           <td>R$ {{ product.price }}</td>
           <td :class="product.product_condition.toLowerCase()">
@@ -40,17 +40,90 @@
           </td>
           <td class="verified-text">
             <nuxt-icon v-if="product.is_seller_verified" name="verified" />
-            <span v-if="product.is_seller_verified"
-              >Vendedor Verificado</span
-            >
+            <span v-if="product.is_seller_verified">Vendedor Verificado</span>
           </td>
         </tr>
       </tbody>
     </table>
+    <div class="pagination">
+      <button
+        @click="previousPage"
+        :disabled="currentPage === 1"
+        class="pagination-button"
+      >
+        Previous
+      </button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          @click="goToPage(page)"
+          :class="{ active: currentPage === page }"
+        >
+          {{ page }}
+        </button>
+      </span>
+      <button
+        @click="nextPage"
+        :disabled="currentPage === totalPages"
+        class="pagination-button"
+      >
+        Next
+      </button>
+    </div>
   </div>
 </template>
-  
-  <style scoped>
+
+<script>
+export default {
+  props: {
+    products: {
+      type: Array,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      pageSize: 5, // Number of products per page
+      currentPage: 1, // Current page
+    };
+  },
+  computed: {
+    // Calculate total number of pages based on number of products and page size
+    totalPages() {
+      return Math.ceil(this.products.length / this.pageSize);
+    },
+    // Calculate the subset of products to display based on current page
+    displayedProducts() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.products.slice(startIndex, endIndex);
+    },
+  },
+  methods: {
+    // Go to previous page
+    previousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
+    },
+    // Go to next page
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+    // Go to a specific page
+    goToPage(page) {
+      this.currentPage = page;
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.product-table-container {
+  min-height: 485px; /* Adjust this value according to your needs */
+  position: relative;
+}
 .product-table {
   width: 100%;
   border-collapse: collapse;
@@ -88,7 +161,8 @@
   border-radius: 5px;
 }
 
-.verified-text ~ span, .verified-text {
+.verified-text ~ span,
+.verified-text {
   color: #21cc35;
 }
 
@@ -106,16 +180,68 @@
   color: #70a9ff;
   font-weight: bold;
 }
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  gap: 10px;
+  span {
+    width: 32px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    button {
+      width: 100%;
+      height: 100%;
+      border: 1px solid #cacaca;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all .2s linear;
+      &.active {
+        background-color: #f83a53;
+        border-color: #f83a53;
+        color: white;
+        &:hover {
+          background-color: #f83a53;
+          border-color: #f83a53;
+          color: white;
+        }
+      }
+      &:hover {
+        background-color: #f83a53;
+        border-color: #f83a53;
+        color: white;
+      }
+    }
+  }
+}
+
+.pagination-button {
+  padding: 8px 16px;
+  background-color: #f83a53;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination-button:hover {
+  background-color: #d32f45;
+}
+
+.pagination-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.active {
+  background-color: #d32f45;
+}
 </style>
-  
-  <script>
-export default {
-  props: {
-    products: {
-      type: Array,
-      required: true,
-    },
-  },
-};
-</script>
-  

@@ -71,7 +71,7 @@
       <section class="my-products container">
         <section class="my-products__title-section">
           <h3 class="my-products__title-section__title">Meus Produtos</h3>
-          <span class="add-product">
+          <span @click="showNewProductModal = true" class="add-product">
             <nuxt-icon name="plus" />
             Adicionar Produto
           </span>
@@ -86,10 +86,162 @@
       <div class="destaque" @click="toggleAuthPanel">Logar</div>
     </main>
     <AuthPanel :show="showAuthPanel" @close="closeAuthPanel" />
+    <ModalComponent
+      v-model="showNewProductModal"
+      :title="'Novo Produto'"
+      :message="'Por favor, insira as informações do produto:'"
+      :isPrompt="true"
+      :promptFields="promptFields"
+      :confirmButtonText="'Criar Produto'"
+      :cancelButtonText="'Cancelar'"
+      @confirm="handleNewProduct"
+      class="modal"
+    />
   </div>
 </template>
 
+<script>
+export default {
+  data() {
+    return {
+      authenticated: false,
+      showAuthPanel: false,
+      session: {},
+      categories: [],
+      memberSince: {},
+      showNewProductModal: false,
+      promptFields: [
+        { label: "Nome", type: "text", required:true },
+        { label: "Descrição", type: "text", required:true },
+        {
+          label: "Categorias",
+          type: "select",
+          options: [],
+          multiSelect: true, required:true
+        },
+        { label: "Marca", type: "text", required:true },
+        { label: "Modelo", type: "text", required:true},
+        {
+          label: "Condição", required :true,
+          type: "radio",
+          options: [
+            { text: "Novo", value: "novo" },
+            { text: "Usado", value: "usado" },
+            { text: "Semi Novo", value: "semi_novo" },
+          ],
+        },
+        { label: "Preço", type: "number",  required:true},
+        { label: "Imagens", type: "file", multiImages: true, required:true },
+      ],
+    };
+  },
+  methods: {
+    toggleAuthPanel() {
+      this.showAuthPanel = !this.showAuthPanel;
+    },
+    closeAuthPanel() {
+      this.showAuthPanel = false;
+    },
+    extractDateComponents(dateString) {
+      const date = new Date(dateString);
+      const day = date.getUTCDate();
+      const monthIndex = date.getUTCMonth(); // getUTCMonth returns 0-based month
+      const year = date.getUTCFullYear();
+      const monthNamesInPortuguese = [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro",
+      ];
+      const month = monthNamesInPortuguese[monthIndex];
+      this.memberSince = { day, month, year };
+    },
+    async loadCategories() {
+      const response = await this.$useFetch("categories");
+      console.log(response);
+      this.categories = response.map((item) => {
+        return {
+          text: item.name,
+          value: item.id,
+        };
+      });
+      this.updatePromptFields();
+    },
+    async handleNewProduct(promptValues) {
+      const { session } = await useSession();
+      this.session = await session;
+      const values = promptValues;
+      const finalData = {
+        seller_id: this.session.user.id,
+        name: promptValues.nome,
+        description: promptValues.descricao,
+        category_ids: promptValues.categorias,
+        brand: promptValues.marca,
+        model: promptValues.modelo,
+        product_condition: promptValues.condicao,
+        price: promptValues.preco,
+        available: 1,
+        images: promptValues.imagens
+      }
+      console.log(finalData)
+      const reponse = await this.$useAuthenticatedFetch('products', 'POST', finalData)
+      console.log(reponse)
+      console.log(finalData)
+      this.showNewProductModal = false;
+    },
+    updatePromptFields() {
+      // Find the "Categorias" field in promptFields and update its options
+      const categoriasFieldIndex = this.promptFields.findIndex(
+        (field) => field.label === "Categorias"
+      );
+      if (categoriasFieldIndex !== -1) {
+        this.promptFields[categoriasFieldIndex].options = this.categories;
+      }
+    },
+  },
+  async mounted() {
+    const { session } = await useSession();
+    this.session = await session;
+    this.userInfo = await this.$useFetch(`users/${this.session.user.id}/info`);
+    this.userProducts = await this.$useFetch(
+      `users/${this.session.user.id}/products`
+    );
+    console.log(this.userInfo, this.userProducts);
+    this.extractDateComponents(this.userInfo.createdAt);
+    this.authenticated = await this.$isAuthenticated();
+    this.loadCategories();
+  },
+};
+</script>
+
 <style lang="scss" scoped>
+.modal {
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #f5f5f5;
+    border-radius: 0 10px 10px 0;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    background-color: #f5f5f5;
+    border-radius: 0 10px 10px 0;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #949494;
+    border: 1px solid #a1a1a1;
+    border-radius: 0 8px 8px 0;
+  }
+}
 main {
   .my-products {
     &__title-section {
@@ -112,7 +264,7 @@ main {
         border-radius: 5px;
         justify-content: center;
         cursor: pointer;
-        transition: all .2s linear;
+        transition: all 0.2s linear;
         gap: 8px;
         &:hover {
           background-color: darken(#5179ff, 10%);
@@ -147,6 +299,7 @@ main {
       display: flex;
       align-items: stretch;
       justify-content: space-between;
+      padding-bottom: 40px;
       gap: 20px;
       flex-wrap: wrap;
       @media screen and (max-width: 600px) {
@@ -318,56 +471,3 @@ main {
 }
 </style>
 
-<script>
-export default {
-  data() {
-    return {
-      authenticated: false,
-      showAuthPanel: false,
-      session: {},
-      memberSince: {},
-    };
-  },
-  methods: {
-    toggleAuthPanel() {
-      this.showAuthPanel = !this.showAuthPanel;
-    },
-    closeAuthPanel() {
-      this.showAuthPanel = false;
-    },
-    extractDateComponents(dateString) {
-      const date = new Date(dateString);
-      const day = date.getUTCDate();
-      const monthIndex = date.getUTCMonth(); // getUTCMonth returns 0-based month
-      const year = date.getUTCFullYear();
-      const monthNamesInPortuguese = [
-        "Janeiro",
-        "Fevereiro",
-        "Março",
-        "Abril",
-        "Maio",
-        "Junho",
-        "Julho",
-        "Agosto",
-        "Setembro",
-        "Outubro",
-        "Novembro",
-        "Dezembro",
-      ];
-      const month = monthNamesInPortuguese[monthIndex];
-      this.memberSince = { day, month, year };
-    },
-  },
-  async mounted() {
-    const { session } = await useSession();
-    this.session = await session;
-    this.userInfo = await this.$useFetch(`users/${this.session.user.id}/info`);
-    this.userProducts = await this.$useFetch(
-      `users/${this.session.user.id}/products`
-    );
-    console.log(this.userInfo, this.userProducts);
-    this.extractDateComponents(this.userInfo.createdAt);
-    this.authenticated = await this.$isAuthenticated();
-  },
-};
-</script>
