@@ -44,7 +44,13 @@
         </div>
       </div>
       <section class="sales-earnings container">
-        <h3 class="sales-earnings__title">Ganhos e Vendas</h3>
+        <div class="sales-earnings__title-section">
+          <h3 class="sales-earnings__title-section__title">Ganhos e Vendas</h3>
+          <span @click="showWithdrawModal = true" class="withdraw">
+            <nuxt-icon name="plus" />
+            Sacar
+          </span>
+        </div>
         <div class="sales-earnings__content">
           <DisplaySaleInfo
             label="Ganhos Totais"
@@ -66,9 +72,45 @@
             :value="userInfo.announcedProducts"
             type="int"
           />
+          <DisplaySaleInfo
+            label="Saldo Bloqueado"
+            :value="userInfo.wallet.balance"
+            type="price"
+          />
+          <DisplaySaleInfo
+            label="Saldo Disponível"
+            :value="userInfo.wallet.withdrawable_amount"
+            type="price"
+          />
+        </div>
+        <h3
+          v-if="userInfo && userInfo.transactions.length > 0"
+          class="sales-earnings__title"
+        >
+          Transações do Usuário
+        </h3>
+        <div
+          v-if="userInfo && userInfo.transactions.length > 0"
+          class="sales-earnings__content"
+        >
+          <DataTable
+            :products="userInfo && userInfo.transactions"
+            :show="10"
+            :hiddenFields="[
+              'seller_address_id',
+              'buyer_address_id',
+              'quantity',
+              'seller_id',
+              'buyer_id',
+              'statusHistory',
+            ]"
+          />
         </div>
       </section>
-      <section class="my-products container">
+      <section
+        v-if="userProducts && userProducts.length > 0"
+        class="my-products container"
+      >
         <section class="my-products__title-section">
           <h3 class="my-products__title-section__title">Meus Produtos</h3>
           <span @click="showNewProductModal = true" class="add-product">
@@ -77,7 +119,19 @@
           </span>
         </section>
         <ul class="my-products__content">
-          <ProductTable :products="userProducts" />
+          <DataTable
+            :show="5"
+            :products="userProducts"
+            :hiddenFields="[
+              'is_seller_verified',
+              'sku',
+              'description',
+              'available',
+              'seller_id',
+              'created_at',
+              'slug',
+            ]"
+          />
         </ul>
       </section>
     </main>
@@ -97,6 +151,17 @@
       @confirm="handleNewProduct"
       class="modal"
     />
+    <ModalComponent
+      v-model="showWithdrawModal"
+      :title="'Sacar'"
+      :message="'Insira o valor desejado (Mínimo de R$ 20,00):'"
+      :isPrompt="true"
+      :promptFields="withDrawPrompt"
+      :confirmButtonText="'Sacar'"
+      :cancelButtonText="'Cancelar'"
+      @confirm="handleUserWithdraw"
+      class="modal"
+    />
   </div>
 </template>
 
@@ -110,19 +175,23 @@ export default {
       categories: [],
       memberSince: {},
       showNewProductModal: false,
+      showWithdrawModal: false,
+      withDrawPrompt: [{ label: "Valor", type: "number", required: true }],
       promptFields: [
-        { label: "Nome", type: "text", required:true },
-        { label: "Descrição", type: "text", required:true },
+        { label: "Nome", type: "text", required: true },
+        { label: "Descrição", type: "text", required: true },
         {
           label: "Categorias",
           type: "select",
           options: [],
-          multiSelect: true, required:true
+          multiSelect: true,
+          required: true,
         },
-        { label: "Marca", type: "text", required:true },
-        { label: "Modelo", type: "text", required:true},
+        { label: "Marca", type: "text", required: true },
+        { label: "Modelo", type: "text", required: true },
         {
-          label: "Condição", required :true,
+          label: "Condição",
+          required: true,
           type: "radio",
           options: [
             { text: "Novo", value: "novo" },
@@ -130,8 +199,8 @@ export default {
             { text: "Semi Novo", value: "semi_novo" },
           ],
         },
-        { label: "Preço", type: "number",  required:true},
-        { label: "Imagens", type: "file", multiImages: true, required:true },
+        { label: "Preço", type: "number", required: true },
+        { label: "Imagens", type: "file", multiImages: true, required: true },
       ],
     };
   },
@@ -166,7 +235,6 @@ export default {
     },
     async loadCategories() {
       const response = await this.$useFetch("categories");
-      console.log(response);
       this.categories = response.map((item) => {
         return {
           text: item.name,
@@ -178,7 +246,6 @@ export default {
     async handleNewProduct(promptValues) {
       const { session } = await useSession();
       this.session = await session;
-      const values = promptValues;
       const finalData = {
         seller_id: this.session.user.id,
         name: promptValues.nome,
@@ -189,13 +256,28 @@ export default {
         product_condition: promptValues.condicao,
         price: promptValues.preco,
         available: 1,
-        images: promptValues.imagens
-      }
-      console.log(finalData)
-      const reponse = await this.$useAuthenticatedFetch('products', 'POST', finalData)
-      console.log(reponse)
-      console.log(finalData)
+        images: promptValues.imagens,
+      };
+      console.log(finalData);
+      const reponse = await this.$useAuthenticatedFetch(
+        "products",
+        "POST",
+        finalData
+      );
+      console.log(reponse);
+      console.log(finalData);
       this.showNewProductModal = false;
+    },
+    async handleUserWithdraw(promptValues) {
+      const { session } = await useSession();
+      this.session = await session;
+      const response = await this.$useAuthenticatedFetch(
+        `transactions/${this.session.user.id}/withdraw`,
+        "PATCH",
+        { amount: promptValues.valor }
+      );
+      console.log(promptValues.valor, response);
+      this.showWithdrawModal = false;
     },
     updatePromptFields() {
       // Find the "Categorias" field in promptFields and update its options
@@ -206,15 +288,20 @@ export default {
         this.promptFields[categoriasFieldIndex].options = this.categories;
       }
     },
+    async fetchUserInfo() {
+      this.userInfo = await this.$useFetch(
+        `users/${this.session.user.id}/info`
+      );
+    },
   },
   async mounted() {
     const { session } = await useSession();
     this.session = await session;
-    this.userInfo = await this.$useFetch(`users/${this.session.user.id}/info`);
+    await this.fetchUserInfo();
     this.userProducts = await this.$useFetch(
       `users/${this.session.user.id}/products`
     );
-    console.log(this.userInfo, this.userProducts);
+    console.log(this.userInfo);
     this.extractDateComponents(this.userInfo.createdAt);
     this.authenticated = await this.$isAuthenticated();
     this.loadCategories();
@@ -243,7 +330,8 @@ export default {
   }
 }
 main {
-  .my-products {
+  .my-products,
+  .sales-earnings {
     &__title-section {
       padding-block: 40px 16px;
       padding-inline: 10px;
@@ -268,6 +356,22 @@ main {
         gap: 8px;
         &:hover {
           background-color: darken(#5179ff, 10%);
+        }
+      }
+      .withdraw {
+        color: white;
+        background-color: #12ad1a;
+        padding: 8px 16px;
+        line-height: 2;
+        display: flex;
+        align-items: center;
+        border-radius: 5px;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s linear;
+        gap: 8px;
+        &:hover {
+          background-color: darken(#12ad1a, 10%);
         }
       }
     }

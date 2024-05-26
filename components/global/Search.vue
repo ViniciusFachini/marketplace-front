@@ -1,26 +1,20 @@
 <template>
-  <form class="search-input">
+  <form class="search-input" @submit.prevent="searchProducts">
     <!-- O componente SpeechRecognition emite o evento "transcription" -->
     <SpeechRecognition class="mic" @transcription="updateSearchTerm" />
     <input
       type="text"
       v-model="searchTerm"
-      @input="handleInput"
       placeholder="Procure aqui o que você precisa!"
     />
-    <button class="search-btn" type="submit">
+    <button type="submit" class="search-btn">
       <nuxt-icon name="search" />
     </button>
   </form>
 </template>
-  
-  <script>
-import SpeechRecognition from "./SpeechRecognition";
+
+<script>
 export default {
-  name: "SearchInput",
-  components: {
-    SpeechRecognition,
-  },
   data() {
     return {
       searchTerm: "",
@@ -31,17 +25,23 @@ export default {
     updateSearchTerm(transcript) {
       // Atualiza searchTerm com a transcrição recebida
       this.searchTerm = transcript;
-      // Dispara o evento de busca
-      this.handleInput();
     },
-    handleInput() {
-      this.$emit("search", this.searchTerm);
+    async searchProducts() {
+      try {
+        // Make a request to your backend API endpoint that handles search
+        const response = await this.$useFetch(`search?query=${this.searchTerm}`);
+        // Emit the search results to the parent component
+        this.$emit("search", this.searchTerm);
+      } catch (error) {
+        console.error("Error searching products:", error);
+        // Handle error, if any
+      }
     },
   },
 };
 </script>
-  
-  <style scoped lang="scss">
+
+<style scoped lang="scss">
 .search-input {
   width: 100%;
   height: 100%;
@@ -75,12 +75,11 @@ export default {
   border: none;
   outline: none;
   font-size: 20px;
-  color: #B1B1B1;
+  color: #b1b1b1;
   font-weight: 500;
   &::placeholder {
-    color: #B1B1B1;
+    color: #b1b1b1;
     font-weight: 500;
   }
 }
 </style>
-  

@@ -12,7 +12,8 @@ export default defineNuxtConfig({
 
   plugins: [
     '~/plugins/auth.js',
-    '~/plugins/api.js'
+    '~/plugins/api.js',
+    '~/plugins/cart.js'
   ],
 
   modules: [

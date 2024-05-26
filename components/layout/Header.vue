@@ -11,20 +11,24 @@
           </NuxtLink>
         </div>
         <div class="search-section-desktop">
-          <Search />
+          <Search @search="handleSearch" />
         </div>
         <div class="user-section">
           <div class="cart" @click="toggleCart">
             <nuxt-icon name="cart" />
-            <div class="items-amount">0</div>
+            <div class="items-amount">{{ cartItemsCount }}</div>
           </div>
-          <div class="user auth-button" >
+          <div class="user auth-button">
             <nuxt-icon name="user" />
             <div class="user-container">
               <NuxtLink to="/minha-conta">
                 <nuxt-icon name="user" /> Minha Conta
               </NuxtLink>
-              <span v-if="!authenticated" @click="toggleAuthPanel" class="login">
+              <span
+                v-if="!authenticated"
+                @click="toggleAuthPanel"
+                class="login"
+              >
                 <nuxt-icon name="login" /> Login
               </span>
               <span v-else class="logout" @click="logOutUser">
@@ -44,21 +48,20 @@
         </div>
       </div>
       <div class="mobile-search-section">
-        <Search />
+        <Search @search="handleSearch" />
       </div>
     </div>
     <HeaderCategories class="second-bar" :categories="categories" />
+    <Cart
+      :class="{ active: isCartOpen }"
+      @cart-toggled="handleCartToggle"
+      ref="cart"
+    />
+    <AuthPanel :show="showAuthPanel" @close="closeAuthPanel" />
   </header>
-  <Cart
-    :class="{ active: isCartOpen }"
-    @cart-toggled="handleCartToggle"
-    ref="cart"
-  />
-  <AuthPanel :show="showAuthPanel" @close="closeAuthPanel" />
 </template>
   
 <script>
-
 export default {
   data() {
     return {
@@ -67,11 +70,13 @@ export default {
       isCartOpen: false,
       showAuthPanel: false,
       authenticated: false,
+      cartItemsCount: 0,
     };
   },
   async mounted() {
+    this.cartItemsCount = Array.from(this.$cart.getCart()).length;
     document.addEventListener("click", this.handleClickOutside);
-    this.authenticated = await this.$isAuthenticated()
+    this.authenticated = await this.$isAuthenticated();
     const response = await this.$useFetch("categories");
     this.categories = await response;
   },
@@ -83,6 +88,11 @@ export default {
       this.isMenuOpen = !this.isMenuOpen;
       document.body.classList.toggle("no-overflow");
     },
+    handleSearch(results) {
+      // Check if search results exist
+      this.$emit('search', results);
+    },
+
     handleCartToggle(isActive) {
       this.isCartOpen = isActive;
     },
@@ -92,33 +102,35 @@ export default {
     },
     async logOutUser() {
       const { reset } = await useSession();
-      this.$router.go('/')
-      reset()
+      this.$router.go("/");
+      reset();
     },
-    handleClickOutside(event) {
-      if (
-        this.isCartOpen &&
-        this.$refs.cart &&
-        this.$refs.cart.$el &&
-        !this.$refs.cart.$el.contains(event.target) &&
-        !document.querySelector(".cart").contains(event.target)
-      ) {
-        this.toggleCart();
-        event.stopPropagation();
-      }
+    methods: {
+      handleClickOutside(event) {
+        const cartContent = this.$refs.cart?.$el.querySelector(".cart-content");
+        const isRemoveButton = event.target.closest(".cart-item__remove");
+        if (
+          this.isCartOpen &&
+          cartContent &&
+          !cartContent.contains(event.target) &&
+          !isRemoveButton
+        ) {
+          this.toggleCart();
+          event.stopPropagation();
+        }
+      },
+      // Other methods remain unchanged
     },
     toggleAuthPanel() {
       this.showAuthPanel = !this.showAuthPanel;
     },
     closeAuthPanel() {
       this.showAuthPanel = false;
-    }
+    },
   },
 };
-</script>
-
-  
-  <style lang="scss">
+</script>  
+<style lang="scss">
 .header {
   width: 100%;
   display: flex;
@@ -236,7 +248,8 @@ export default {
                 color: #f83a53;
               }
             }
-            .login, .logout {
+            .login,
+            .logout {
               border-radius: 0 0 5px 5px;
               cursor: pointer;
               width: 100%;

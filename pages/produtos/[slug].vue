@@ -1,5 +1,21 @@
 <template>
   <div class="page-wrapper">
+    <ModalComponent
+      v-model="showWarningModal"
+      :title="warningTitle"
+      :message="warningMessage"
+      isAlert
+      :okButtonText="'Ok'"
+      @update:modelValue="showWarningModal = $event"
+    />
+    <ModalComponent
+      v-model="showConfirmationModal"
+      :title="confirmationTitle"
+      :message="confirmationMessage"
+      isAlert
+      :okButtonText="'Ok'"
+      @update:modelValue="showConfirmationModal = $event"
+    />
     <div class="container">
       <div class="product-container">
         <div class="product-image">
@@ -45,8 +61,11 @@
         </div>
         <div class="product-info">
           <div class="product-info__name-verified-sku">
-            <div v-if="productInfo.is_seller_verified" class="product-info__name-verified-sku--verified">
-              <nuxt-icon name="verified"/>
+            <div
+              v-if="productInfo.is_seller_verified"
+              class="product-info__name-verified-sku--verified"
+            >
+              <nuxt-icon name="verified" />
               <span class="verified-text">Vendedor Verificado</span>
             </div>
             <h1
@@ -69,9 +88,14 @@
             ></span>
           </div>
           <div class="buy-now">
-            <NuxtLink to="/" class="buy">Compre Agora</NuxtLink>
-            ou
-            <NuxtLink to="/" class="talk">Fale com o Vendedor</NuxtLink>
+            <button
+              v-if="productInfo.available"
+              @click="handleAddToCart"
+              class="buy"
+            >
+              Compre Agora
+            </button>
+            <button v-else class="not-available">Produto Indisponível</button>
           </div>
           <div class="seller">
             <span class="seller__title">Sobre o vendedor: </span>
@@ -88,13 +112,17 @@
                 <div class="seller-container__info--name">
                   {{ sellerInfo.name }}
                 </div>
-                <div class="seller-container__info--location" v-if="sellerAddress">
+                <div
+                  class="seller-container__info--location"
+                  v-if="sellerAddress"
+                >
                   <nuxt-icon name="location" />
                   {{ sellerAddress.city }} - {{ sellerAddress.state }}
                 </div>
                 <div class="seller-container__info--transactions">
                   <span class="announced"
-                    >{{ sellerInfo.announcedProducts }} Produtos Anunciados</span
+                    >{{ sellerInfo.announcedProducts }} Produtos
+                    Anunciados</span
                   >
                   <span class="canceled"
                     >{{ sellerInfo.canceledSales }} Vendas Canceladas</span
@@ -106,14 +134,14 @@
               </div>
             </div>
           </div>
-          <div class="product-description">
-            <span class="product-description__title">Descrição do Produto</span>
-            <div class="product-description__content">
-              {{ productInfo.description }}
-            </div>
-          </div>
         </div>
       </div>
+        <div class="product-description">
+          <span class="product-description__title">Descrição do Produto</span>
+          <div class="product-description__content">
+            {{ productInfo.description }}
+          </div>
+        </div>
       <ProductDisplay
         v-for="category in relatedCategories"
         :key="category.category_id"
@@ -126,9 +154,113 @@
 </template>
 
 
+<script>
+export default {
+  data() {
+    return {
+      productInfo: {},
+      currentSlide: 0,
+      sellerInfo: {},
+      sellerAddress: {},
+      showWarningModal: false,
+      warningTitle: "O Produto já está no carrinho!",
+      warningMessage: "",
+      showConfirmationModal: false,
+      confirmationTitle: "Produto Adicionado ao Carrinho",
+      confirmationMessage: "",
+    };
+  },
+  methods: {
+    slideTo(val) {
+      this.currentSlide = val;
+    },
+    formatPrice(price) {
+      const value = parseFloat(price);
+      if (isNaN(value)) {
+      } else {
+        return new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(value);
+      }
+    },
+    handleAddToCart() {
+      const {
+        id,
+        images,
+        name,
+        quantity = 1,
+        price,
+        product_condition,
+        seller_id,
+      } = this.productInfo;
+      const cartObject = {
+        id: id,
+        name: name,
+        quantity: quantity,
+        image: images[0].imageUrl,
+        price: price,
+        product_condition: product_condition,
+        seller_id: seller_id,
+      };
+      const result = this.$cart.addItem(cartObject);
+      if (result) {
+        this.showConfirmationModal = true;
+        this.confirmationMessage = `O Item "${name}" Foi adicionado ao carrinho!`;
+      } else {
+        this.showWarningModal = true;
+        this.warningMessage = `O Item "${name}" já está no carrinho!`;
+      }
+      this.updateCartItems();
+    },
+    updateCartItems() {
+      this.cartItems = this.$cart.getCart();
+    },
+  },
+  async mounted() {
+    console.log(this.$cart.getCart());
+    const route = useRoute();
+    const fetchItem = await this.$useFetch(
+      `products/slug/${route.params.slug}`
+    );
+    this.productInfo = await fetchItem;
+    const response = await this.$useFetch(
+      `users/${this.productInfo.seller_id}/info`
+    );
+    console.log(this.productInfo);
+    this.sellerInfo = await response;
+    this.sellerAddress = await response.addresses.main;
+    this.relatedCategories = await fetchItem.categories.slice(0, 1);
+    this.productPremium =
+      this.productInfo.categories &&
+      Array.isArray(this.productInfo.categories) &&
+      this.productInfo.categories.length > 0
+        ? this.productInfo.categories
+            .map((item) => item && item.category_id)
+            .includes(13)
+        : false;
+  },
+};
+</script>
+
+
 <style lang="scss" scoped>
 .page-wrapper {
   background: #f1f1f1;
+  .product-description {
+      &__title {
+        font-size: 18px;
+        font-weight: 500;
+        margin-block: 30px 20px;
+        width: 100%;
+        display: block;
+      }
+      &__content {
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.5;
+      }
+    }
 }
 .product-container {
   display: flex;
@@ -160,7 +292,7 @@
       gap: 20px;
       button {
         cursor: pointer;
-        transition: all .2s linear;
+        transition: all 0.2s linear;
         padding: 8px 16px;
         display: flex;
         align-items: center;
@@ -221,7 +353,7 @@
       align-items: center;
       justify-content: start;
       gap: 20px;
-      a {
+      button {
         width: 100%;
         height: 50px;
         text-decoration: none;
@@ -229,20 +361,21 @@
         align-items: center;
         justify-content: center;
         text-align: center;
+        font-size: 18px;
+        cursor: pointer;
         transition: all 0.1s linear;
-      }
-      .buy {
         background-color: #12a826;
+        border: none;
         color: white;
         &:hover {
           background-color: darken(#12a826, 10%);
         }
-      }
-      .talk {
-        background-color: #f83a53;
-        color: white;
-        &:hover {
-          background-color: #e93048;
+        &.not-available {
+          background-color: #f83a53;
+          cursor: not-allowed;
+          &:hover {
+            background-color: lighten(#f83a53, 10%);
+          }
         }
       }
     }
@@ -302,21 +435,6 @@
       }
     }
 
-    .product-description {
-      &__title {
-        font-size: 18px;
-        font-weight: 500;
-        margin-block: 30px 20px;
-        width: 100%;
-        display: block;
-      }
-      &__content {
-        font-size: 16px;
-        font-weight: 400;
-        line-height: 1.5;
-      }
-    }
-
     &__name-verified-sku {
       display: flex;
       flex-direction: column;
@@ -373,53 +491,3 @@
   }
 }
 </style>
-
-<script>
-export default {
-  data() {
-    return {
-      productInfo: {},
-      currentSlide: 0,
-      sellerInfo: {},
-      sellerAddress: {},
-    };
-  },
-  methods: {
-    slideTo(val) {
-      this.currentSlide = val;
-    },
-    formatPrice(price) {
-      const value = parseFloat(price);
-      if (isNaN(value)) {
-      } else {
-        return new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(value);
-      }
-    },
-  },
-  async mounted() {
-    const route = useRoute();
-    const fetchItem = await this.$useFetch(
-      `products/slug/${route.params.slug}`
-    );
-    this.productInfo = await fetchItem;
-    const response = await this.$useFetch(
-      `users/${this.productInfo.seller_id}/info`
-    );
-    console.log(this.productInfo)
-    this.sellerInfo = await response;
-    this.sellerAddress = await response.addresses.main;
-    this.relatedCategories = await fetchItem.categories.slice(0, 1);
-    this.productPremium =
-      this.productInfo.categories &&
-      Array.isArray(this.productInfo.categories) &&
-      this.productInfo.categories.length > 0
-        ? this.productInfo.categories
-            .map((item) => item && item.category_id)
-            .includes(13)
-        : false;
-  },
-};
-</script>

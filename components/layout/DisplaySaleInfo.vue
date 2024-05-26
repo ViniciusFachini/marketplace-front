@@ -38,7 +38,7 @@
 export default {
   props: {
     label: String,
-    value: String,
+    value: Number,
     type: String
   },
   methods: {

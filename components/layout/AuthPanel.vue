@@ -107,7 +107,7 @@ export default {
   left: 0;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  z-index: 100000;
   display: flex;
   align-items: center;
   justify-content: center;

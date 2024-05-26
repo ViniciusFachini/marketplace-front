@@ -63,7 +63,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                 }
             },
             isAuthenticated: async () => {
-                return session.value.token && validateToken()
+                return session.value.token && validateToken() ? true : false
             },
             useFetch: async (endpoint, method = 'get') => {
                 const config = {

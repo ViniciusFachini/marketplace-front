@@ -22,7 +22,7 @@
     </figure>
     </NuxtLink>
     <figcaption class="product-item__price-condition">
-      <div class="product-price">R$ {{ productData.price }}</div>
+      <div class="product-price">{{ formatPrice(productData.price) }}</div>
       <div
         :class="
           productData.product_condition.toLowerCase() == 'novo' ? 'new' : 'used'
@@ -163,7 +163,17 @@ export default {
     },
     getProductLink() {
       return `/produtos/${this.productData.slug}`
-    }
+    },
+    formatPrice(price) {
+      const value = parseFloat(price);
+      if (isNaN(value)) {
+      } else {
+        return new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(value);
+      }
+    },
   },
   async mounted() {
     const productData = await this.productData;
