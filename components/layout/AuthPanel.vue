@@ -8,58 +8,202 @@
             <nuxt-icon name="close" />
           </button>
 
-          <!-- Login/Register content -->
-          <!-- <div class="tabs">
-            <button
-              :class="{ active: activeTab === 'login' }"
-              @click="toggleTab('login')"
-            >
-              Login
-            </button>
-            <button
-              :class="{ active: activeTab === 'register' }"
-              @click="toggleTab('register')"
-            >
-              Register
-            </button>
-          </div> -->
+          <div class="image-wrapper">
+            <img src="~/assets/images/logo-inverted.svg" alt="Logo" />
+          </div>
 
           <div v-if="activeTab === 'login'" class="form">
-            <h2>Login</h2>
-            <form
-              @submit.prevent="handleLogin(this.loginEmail, this.loginPassword)"
-            >
+            <form @submit.prevent="handleLogin(loginEmail, loginPassword)">
               <InputComponent
                 v-model="loginEmail"
                 type="email"
-                label="Email"
                 :required="true"
-                placeholder="Digite Seu Email"
+                :placeholder="'Digite Seu Email'"
                 :input-full="true"
               />
               <InputComponent
                 v-model="loginPassword"
                 type="password"
-                label="Senha"
                 :required="true"
-                placeholder="Digite sua Senha"
+                :placeholder="'Digite sua Senha'"
                 :input-full="true"
               />
-              <Button type="submit" buttonFull>Logar</Button>
+              <div class="forgot-password">Esqueceu a Senha?</div>
+              <Button type="submit" class="button-login" buttonFull rounded
+                >Logar</Button
+              >
+              <Button
+                type="button"
+                @click="toggleTab('register')"
+                class="button-register-now"
+                buttonFull
+                rounded
+                >Criar Conta</Button
+              >
+            </form>
+          </div>
+
+          <div v-if="activeTab === 'address'" class="form">
+            <form @submit.prevent="handleRegisterWithAddress">
+              <div class="double-field">
+                <InputComponent
+                  v-model="address.rua"
+                  type="text"
+                  :required="true"
+                  :placeholder="'Rua'"
+                  :input-full="false"
+                  label="Rua"
+                />
+                <InputComponent
+                  v-model="address.numero"
+                  type="text"
+                  :required="true"
+                  :placeholder="'Número'"
+                  :input-full="false"
+                  label="Número"
+                />
+              </div>
+              <InputComponent
+                v-model="address.bairro"
+                type="text"
+                :required="true"
+                :placeholder="'Bairro'"
+                :input-full="true"
+                label="Bairro"
+              />
+              <InputComponent
+                v-model="address.cidade"
+                type="text"
+                :required="true"
+                :placeholder="'Cidade'"
+                :input-full="true"
+                label="Cidade"
+              />
+              <InputComponent
+                v-model="address.estado"
+                type="text"
+                :required="true"
+                :placeholder="'Estado'"
+                :input-full="true"
+                label="Estado"
+              />
+              <InputComponent
+                v-model="address.cep"
+                type="text"
+                :required="true"
+                :placeholder="'CEP'"
+                :input-full="true"
+                label="CEP"
+              />
+              <InputComponent
+                v-model="address.pais"
+                type="text"
+                :required="true"
+                :placeholder="'País'"
+                :input-full="true"
+                label="País"
+              />
+              <InputComponent
+                v-model="address.titulo"
+                type="text"
+                :required="true"
+                :placeholder="'Ex: Casa, Trabalho'"
+                :input-full="true"
+                label="Nome do Endereço"
+              />
+              <Button type="submit" class="button-login" buttonFull rounded
+                >Cadastrar</Button
+              >
+              <Button
+                type="button"
+                @click="toggleTab('register')"
+                class="button-login-now"
+                buttonFull
+                rounded
+                >Já tenho uma conta!</Button
+              >
             </form>
           </div>
 
           <div v-if="activeTab === 'register'" class="form">
-            <h2>Register</h2>
-            <!-- Your register form goes here -->
+            <form @submit.prevent="handleRegister">
+              <div class="double-field">
+                <InputComponent
+                  v-model="name"
+                  type="text"
+                  :required="true"
+                  :placeholder="'Seu nome'"
+                  :input-full="false"
+                  label="Nome"
+                />
+                <InputComponent
+                  v-model="username"
+                  type="text"
+                  :required="true"
+                  :placeholder="'Digite seu nome de usuário'"
+                  :input-full="false"
+                  label="Usuário"
+                />
+              </div>
+              <InputComponent
+                v-model="email"
+                type="email"
+                :required="true"
+                :placeholder="'Seu Email'"
+                :input-full="true"
+                label="Email"
+              />
+              <div class="double-field">
+                <InputComponent
+                  v-model="password"
+                  type="password"
+                  :required="true"
+                  :placeholder="'Senha'"
+                  :input-full="false"
+                  label="Senha"
+                />
+                <InputComponent
+                  v-model="confirmPassword"
+                  type="password"
+                  :required="true"
+                  :placeholder="'Confirmação de senha'"
+                  :input-full="false"
+                  label="Confirmação de Senha"
+                />
+              </div>
+              <InputComponent
+                v-model="phone"
+                type="text"
+                :required="true"
+                :placeholder="'Celular'"
+                :input-full="false"
+                label="Celular"
+              />
+              <InputComponent
+                v-model="addressOnCheckout"
+                type="checkbox"
+                label="Cadastrar Endereço no Checkout"
+              />
+              <Button type="submit" class="button-login" buttonFull rounded
+                >Cadastrar</Button
+              >
+              <Button
+                type="button"
+                @click="toggleTab('login')"
+                class="button-login-now"
+                buttonFull
+                rounded
+                >Já tenho uma conta!</Button
+              >
+            </form>
           </div>
         </div>
       </div>
     </transition>
   </div>
 </template>
-    
-  <script>
+
+<script>
 export default {
   props: {
     show: {
@@ -72,6 +216,23 @@ export default {
       activeTab: "login",
       loginEmail: "",
       loginPassword: "",
+      name: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+      email: "",
+      phone: "",
+      address: {
+        rua: "",
+        cidade: "",
+        numero: "",
+        estado: "",
+        bairro: "",
+        cep: "",
+        pais: "",
+        titulo: "",
+      },
+      addressOnCheckout: false,
     };
   },
   methods: {
@@ -85,20 +246,58 @@ export default {
       await this.$loginUser({ email, password });
       this.redirect();
     },
+    async handleRegister() {
+      if (!this.addressOnCheckout) {
+        this.toggleTab("address");
+      } else {
+        const userData = {
+          name: this.name,
+          username: this.username,
+          email: this.email,
+          password: this.password,
+          phone: this.phone,
+          user_type: "User",
+        };
+        const response = await this.$registerUser(userData)
+        console.log(response, userData);
+      }
+    },
+    async handleRegisterWithAddress() {
+      const userData = {
+        name: this.name,
+        username: this.username,
+        email: this.email,
+        password: this.password,
+        phone: this.phone,
+        user_type: "User",
+        address: {
+          street: this.address.rua,
+          neighbourhood: this.address.bairro,
+          number: this.address.numero,
+          city: this.address.cidade,
+          state: this.address.estado,
+          postal_code: this.address.cep,
+          country: this.address.pais,
+          title: this.address.titulo,
+        },
+      };
+      const response = await this.$registerUser(userData)
+      console.log(response, userData);
+    },
     async redirect() {
       const result = await this.$validateToken();
-        if (result.error) {
-          this.$router.go("/");
-        } else {
-          this.$router.go("/minha-conta");
-        }
-        this.close()
+      if (result.error) {
+        this.$router.push("/");
+      } else {
+        this.$router.push("/minha-conta");
+      }
+      this.close();
     },
   },
 };
 </script>
-    
-  <style>
+
+<style lang="scss" scoped>
 .off-canvas {
   position: fixed;
   top: 0;
@@ -108,7 +307,6 @@ export default {
   display: flex;
   flex-direction: column;
   z-index: 100000;
-  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -128,51 +326,61 @@ export default {
   padding: 30px;
   overflow-y: auto;
   z-index: 20;
-  max-width: 400px;
-  max-height: 400px;
+  max-width: 600px;
+  max-height: 70vh !important;
   width: 100%;
   height: 100%;
   position: relative;
-}
-
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  border: none;
-  background: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.tabs {
   display: flex;
-  margin-bottom: 20px;
-}
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-evenly;
 
-.tabs button {
-  flex: 1;
-  padding: 10px 15px;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  outline: none;
-}
+  .image-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    img {
+      max-width: 250px;
+    }
+  }
 
-.tabs button.active {
-  background-color: #f0f0f0;
-}
+  .double-field {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
 
-.form {
-  /* display: none; */
-}
+  .forgot-password {
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s linear;
+    &:hover {
+      color: #f83a53;
+    }
+  }
 
-.form h2 {
-  margin-bottom: 10px;
-}
+  .button-login {
+    background-color: #222;
+    color: white;
+    padding: 12px;
+    &:hover {
+      background-color: #666;
+    }
+  }
 
-.form.active {
-  display: block;
+  .button-register-now,
+  .button-login-now {
+    background-color: transparent;
+    border: 1px solid #222;
+    padding: 12px;
+    &:hover {
+      background-color: #222;
+      color: white;
+    }
+  }
 }
 </style>
-  

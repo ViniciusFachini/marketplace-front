@@ -7,7 +7,7 @@
       :autoplay="4000"
     >
       <Slide v-for="slide in 10" :key="slide">
-        <img src="https://source.unsplash.com/random/960x330" />
+        <img src="http://via.placeholder.com/960x330" />
       </Slide>
       <template #addons>
         <Navigation />
@@ -15,8 +15,8 @@
       </template>
     </Carousel>
     <div class="banners">
-      <img src="https://source.unsplash.com/random/450x150" />
-      <img src="https://source.unsplash.com/random/450x150" />
+      <img src="http://via.placeholder.com/450x150" />
+      <img src="http://via.placeholder.com/450x150" />
     </div>
   </div>
 </template>

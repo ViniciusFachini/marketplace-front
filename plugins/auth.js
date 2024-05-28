@@ -16,6 +16,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                 if (response.token) {
                     update(response)
                 }
+            },
+            registerUser: async (userData) => {
+                const config = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                }
+                let response = await fetch('http://localhost:3001/users/register', config)
+                response = await response.json()
+                console.log(response)
             }
         }
     }

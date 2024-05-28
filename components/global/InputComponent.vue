@@ -1,10 +1,10 @@
 <template>
   <div class="input-wrapper" :class="type">
-    <label v-if="required && label" :for="inputId">
+    <label v-if="required && label && type != 'checkbox'" :for="inputId">
       {{ label }}:
       <span class="required-dot">*</span>
     </label>
-    <label v-else-if="label" :for="inputId">{{ label }}:</label>
+    <label v-else-if="label && type != 'checkbox'" :for="inputId">{{ label }}:</label>
 
     <input
       v-if="type === 'file'"
@@ -25,6 +25,7 @@
       :required="required"
       :id="inputId"
       :disabled="disabled"
+      :placeholder="placeholder"
       class="custom-input"
       :style="inputStyle"
     />
@@ -48,6 +49,21 @@
           />
           <label :for="`${inputId}-${index}`">{{ option.text }}</label>
         </div>
+      </div>
+    </template>
+
+    <template v-if="type === 'checkbox'">
+      <div class="checkbox-wrapper">
+        <input
+          type="checkbox"
+          :required="required"
+          :id="inputId"
+          :checked="modelValue"
+          @change="handleCheckboxChange($event)"
+          :disabled="disabled"
+          :style="inputStyle"
+        />
+        <label :for="inputId">{{ label }}</label>
       </div>
     </template>
 
@@ -96,6 +112,7 @@ export default {
       type: Array,
       default: () => [],
     },
+    placeholder: String
   },
   computed: {
     inputId() {
@@ -134,6 +151,10 @@ export default {
       );
       this.$emit("update:modelValue", selectedOptions);
     },
+    handleCheckboxChange(event) {
+      const checked = event.target.checked;
+      this.$emit("update:modelValue", checked);
+    }
   },
 };
 </script>
@@ -187,6 +208,14 @@ export default {
   }
 }
 
+.checkbox-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 8px;
+}
+
 // Style select
 select,
 select[multiple] {
@@ -227,4 +256,3 @@ select[multiple]:focus {
   box-shadow: 0 0 5px rgba(102, 175, 233, 0.5);
 }
 </style>
-

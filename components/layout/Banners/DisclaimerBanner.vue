@@ -3,9 +3,9 @@
     <div class="container">
       <div class="banner-premium">
         <picture class="banner-premium__figure">
-          <source srcset="https://source.unsplash.com/random/400x400" media="(max-width: 540px)">
+          <source srcset="http://via.placeholder.com/400x400" media="(max-width: 540px)">
           <img
-            src="https://source.unsplash.com/random/700x250"
+            src="http://via.placeholder.com/700x250"
             alt="Desa Shop Premium"
           />
         </picture>
@@ -23,9 +23,9 @@
       </div>
       <div class="banner-shipping">
         <picture class="banner-shipping__figure">
-          <source srcset="https://source.unsplash.com/random/400x400" media="(max-width: 540px)">
+          <source srcset="http://via.placeholder.com/400x400" media="(max-width: 540px)">
           <img
-            src="https://source.unsplash.com/random/700x250"
+            src="http://via.placeholder.com/700x250"
             alt="Desa Shop Premium"
           />
         </picture>

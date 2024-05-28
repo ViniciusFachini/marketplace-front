@@ -13,6 +13,7 @@
           :options="field.options"
           :multiImages="field.multiImages"
           :multiSelect="field.multiSelect"
+          :required="field.required"
         />
       </div>
 
