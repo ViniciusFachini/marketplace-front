@@ -1,11 +1,24 @@
 <template>
   <div>
+    <ModalComponent
+      v-model="showModal"
+      :title="modalTitle"
+      :message="modalMessage"
+      isAlert
+    />
     <transition name="slide">
       <div v-if="show" class="off-canvas">
         <div class="overlay" @click="close"></div>
         <div class="content">
           <button @click="close" class="close-btn">
             <nuxt-icon name="close" />
+          </button>
+          <button
+            v-if="activeTab === 'address'"
+            @click="toggleTab('register')"
+            class="return-btn"
+          >
+            <nuxt-icon name="arrow-back" />
           </button>
 
           <div class="image-wrapper">
@@ -233,6 +246,9 @@ export default {
         titulo: "",
       },
       addressOnCheckout: false,
+      showModal: false,
+      modalTitle: "",
+      modalMessage: "",
     };
   },
   methods: {
@@ -258,9 +274,17 @@ export default {
           phone: this.phone,
           user_type: "User",
         };
-        const response = await this.$registerUser(userData)
-        console.log(response, userData);
+        const response = await this.$registerUser(userData);
+        console.log(response);
+        if(response.error){
+          this.triggerModal(response.error, response.error)
+        }
       }
+    },
+    triggerModal(title, message) {
+      this.modalTitle = title;
+      this.modalMessage = message;
+      this.showModal = true;
     },
     async handleRegisterWithAddress() {
       const userData = {
@@ -281,7 +305,7 @@ export default {
           title: this.address.titulo,
         },
       };
-      const response = await this.$registerUser(userData)
+      const response = await this.$registerUser(userData);
       console.log(response, userData);
     },
     async redirect() {
@@ -311,6 +335,24 @@ export default {
   justify-content: center;
 }
 
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #f5f5f5;
+  border-radius: 0 0 0 0;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background-color: #f5f5f5;
+  border-radius: 0 0 0 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #949494;
+  border: 1px solid #a1a1a1;
+  border-radius: 0 0 0 0;
+}
+
 .overlay {
   position: fixed;
   top: 0;
@@ -336,6 +378,39 @@ export default {
   align-items: stretch;
   justify-content: space-evenly;
 
+  .close-btn,
+  .return-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: black;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    span {
+      background: #fff;
+      height: 100%;
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border-radius: 50%;
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    }
+  }
+
+  .return-btn {
+    right: unset;
+    left: 20px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 20px;
+  }
+
   .image-wrapper {
     display: flex;
     align-items: center;
@@ -352,6 +427,9 @@ export default {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    @media screen and (max-width: 767px) {
+      flex-wrap: wrap;
+    }
   }
 
   .forgot-password {

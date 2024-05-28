@@ -108,7 +108,6 @@
         </div>
       </section>
       <section
-        v-if="userProducts && userProducts.length > 0"
         class="my-products container"
       >
         <section class="my-products__title-section">
@@ -118,7 +117,7 @@
             Adicionar Produto
           </span>
         </section>
-        <ul class="my-products__content">
+        <ul class="my-products__content" v-if="userProducts && userProducts.length > 0">
           <DataTable
             :show="5"
             :products="userProducts"

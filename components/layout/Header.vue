@@ -11,7 +11,7 @@
           </NuxtLink>
         </div>
         <div class="search-section-desktop">
-          <Search @search="handleSearch" />
+          <Search />
         </div>
         <div class="user-section">
           <div class="cart" @click="toggleCart">
@@ -23,6 +23,9 @@
             <div class="user-container">
               <NuxtLink to="/minha-conta">
                 <nuxt-icon name="user" /> Minha Conta
+              </NuxtLink>
+              <NuxtLink v-if="authenticated" to="/meus-pedidos">
+                <nuxt-icon name="orders" class="iconkk" /> <span class="text">Meus Pedidos</span>
               </NuxtLink>
               <span
                 v-if="!authenticated"
@@ -48,7 +51,7 @@
         </div>
       </div>
       <div class="mobile-search-section">
-        <Search @search="handleSearch" />
+        <Search />
       </div>
     </div>
     <HeaderCategories class="second-bar" :categories="categories" />
@@ -88,11 +91,6 @@ export default {
       this.isMenuOpen = !this.isMenuOpen;
       document.body.classList.toggle("no-overflow");
     },
-    handleSearch(results) {
-      // Check if search results exist
-      this.$emit('search', results);
-    },
-
     handleCartToggle(isActive) {
       this.isCartOpen = isActive;
     },
@@ -243,6 +241,9 @@ export default {
               color: #222;
               font-weight: 500;
               gap: 8px;
+              .iconkk {
+                width: 24px;
+              }
               &:hover {
                 background-color: #f1f1f1;
                 color: #f83a53;

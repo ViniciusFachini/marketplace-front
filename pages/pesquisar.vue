@@ -28,21 +28,11 @@ export default {
     this.query = route.query.busca;
     await this.fetchProducts();
   },
-  watch: {
-    // Watch for changes to the query property
-    query: {
-      handler: "fetchProducts", // Call the fetchProducts method when query changes
-      immediate: true, // Call the handler immediately after registration, ensuring initial products are fetched
-    },
-  },
   methods: {
     async fetchProducts() {
       const response = await this.$useFetch(`search?query=${this.query}`);
       this.productsFetched = response;
-    },
-    async handleSearch() {
-      // Fetch products when enter key is pressed in the search bar
-      await this.fetchProducts();
+      console.log(this.productsFetched);
     },
   },
 };

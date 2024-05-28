@@ -1,5 +1,5 @@
 <template>
-  <form class="search-input" @submit.prevent="searchProducts">
+  <form class="search-input" method="GET" @submit="searchProducts">
     <!-- O componente SpeechRecognition emite o evento "transcription" -->
     <SpeechRecognition class="mic" @transcription="updateSearchTerm" />
     <input
@@ -21,21 +21,11 @@ export default {
     };
   },
   methods: {
-    // Função chamada quando o evento "transcription" é disparado pelo componente filho
     updateSearchTerm(transcript) {
-      // Atualiza searchTerm com a transcrição recebida
       this.searchTerm = transcript;
     },
     async searchProducts() {
-      try {
-        // Make a request to your backend API endpoint that handles search
-        const response = await this.$useFetch(`search?query=${this.searchTerm}`);
-        // Emit the search results to the parent component
-        this.$emit("search", this.searchTerm);
-      } catch (error) {
-        console.error("Error searching products:", error);
-        // Handle error, if any
-      }
+      this.$router.push(`/pesquisar?busca=${this.searchTerm}`)
     },
   },
 };
