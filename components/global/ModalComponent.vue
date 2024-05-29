@@ -28,8 +28,8 @@
         <tbody>
           <tr v-for="(value, key) in treatedProductDetails" :key="key">
             <td>{{ key }}</td>
-            <td v-if="key != 'images'" >{{ value }}</td>
-            <td v-else ><img :src="value" alt=""></td>
+            <td v-if="key != 'images'">{{ value }}</td>
+            <td v-else><img :src="value" alt="" /></td>
           </tr>
         </tbody>
       </table>
@@ -81,7 +81,7 @@ export default {
     },
     displayData: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isPrompt: {
       type: Boolean,
@@ -107,10 +107,10 @@ export default {
     productDetails() {
       // Extract basic product details from the message prop
       // Modify this based on how you pass the product details to the modal
-      if(this.$props.displayData) {
+      if (this.$props.displayData) {
         return JSON.parse(this.message);
       } else {
-        return
+        return;
       }
     },
     treatedProductDetails() {
@@ -119,13 +119,18 @@ export default {
 
       // Treat the 'categories' field
       if (originalDetails.categories) {
-        originalDetails.categories = originalDetails.categories.map(item => item.categoryName).join(', ');
+        originalDetails.categories = originalDetails.categories
+          .map((item) => item.categoryName)
+          .join(", ");
       }
       if (originalDetails.statusHistory) {
-        originalDetails.statusHistory = originalDetails.statusHistory.map(item => {
-          const rightDate = new Date(item.changedAt).toLocaleString();
-          return `${item.newStatus} - ${rightDate}`
-        }).reverse().join(' | ');
+        originalDetails.statusHistory = originalDetails.statusHistory
+          .map((item) => {
+            const rightDate = new Date(item.changedAt).toLocaleString();
+            return `${item.newStatus} - ${rightDate}`;
+          })
+          .reverse()
+          .join(" | ");
       }
 
       // Treat the 'images' field
@@ -137,11 +142,24 @@ export default {
       // Treat the 'created_at' field
       if (originalDetails.created_at) {
         // Convert 'created_at' to a localized date string
-        originalDetails.created_at = new Date(originalDetails.created_at).toLocaleString();
+        originalDetails.created_at = new Date(
+          originalDetails.created_at
+        ).toLocaleString();
       }
+
+      if (originalDetails.buyer_address) {
+        originalDetails.buyer_address = `${originalDetails.buyer_address.street} N.º ${originalDetails.buyer_address.number}, ${originalDetails.buyer_address.city} - ${originalDetails.buyer_address.state}`
+      }
+      
+      if (originalDetails.seller_address) {
+        originalDetails.seller_address = `${originalDetails.seller_address.street} N.º ${originalDetails.seller_address.number}, ${originalDetails.seller_address.city} - ${originalDetails.seller_address.state}`
+      }
+
       if (originalDetails.createdAt) {
         // Convert 'createdAt' to a localized date string
-        originalDetails.createdAt = new Date(originalDetails.createdAt).toLocaleString();
+        originalDetails.createdAt = new Date(
+          originalDetails.createdAt
+        ).toLocaleString();
       }
 
       // Treat the 'price' field
@@ -152,7 +170,16 @@ export default {
 
       if (originalDetails.totalAmount) {
         // Convert 'price' to a formatted price string
-        originalDetails.totalAmount = `${this.formatPrice(originalDetails.totalAmount)}`;
+        originalDetails.totalAmount = `${this.formatPrice(
+          originalDetails.totalAmount
+        )}`;
+      }
+      
+      if (originalDetails.total_amount) {
+        // Convert 'price' to a formatted price string
+        originalDetails.total_amount = `${this.formatPrice(
+          originalDetails.total_amount
+        )}`;
       }
 
       // Return the treated product details

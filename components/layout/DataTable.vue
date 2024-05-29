@@ -1,7 +1,7 @@
 <template>
   <div class="product-table-container">
     <!-- Filter inputs and select -->
-    <div class="input-filter">
+    <div v-if="showFilter" class="input-filter">
       <!-- Date filters for specific fields -->
       <div
         v-if="dateFilterFields.includes(selectedFilter)"
@@ -114,6 +114,10 @@ export default {
       type: Number,
       default: 5,
     },
+    showFilter: {
+      type: Boolean,
+      default: false,
+    }
   },
   data() {
     return {
@@ -207,8 +211,14 @@ export default {
       this.currentPage = page;
     },
     formatField(value, field) {
-      if (field === "price" || field === "totalAmount") {
+      if (field === "price" || field === "totalAmount" || field === "total_amount") {
         return this.formatPrice(value);
+      }
+      if (field === 'buyer_address' || field === 'buyerAddress' || field === 'seller_address' || field === 'sellerAddress') {
+        return `${value.street} N.º ${value.number}, ${value.city} - ${value.state}`
+      }
+      if (field === 'created_at' || field === 'updated_at' || field === 'createdAt' || field === 'updatedAt') {
+        return this.formatDate(value)
       }
       // Handle other fields if needed
       return value;

@@ -94,6 +94,7 @@
           class="sales-earnings__content"
         >
           <DataTable
+            showFilter
             :products="userInfo && userInfo.transactions"
             :show="10"
             :hiddenFields="[
@@ -120,6 +121,7 @@
           v-if="userProducts && userProducts.length > 0"
         >
           <DataTable
+            showFilter
             :show="5"
             :products="userProducts"
             :hiddenFields="[
@@ -276,13 +278,16 @@ export default {
         images: promptValues.imagens,
       };
       console.log(finalData);
-      const reponse = await this.$fetchInfoAuthenticated(
+      const response = await this.$fetchInfoAuthenticated(
         "products",
         "POST",
         finalData
       );
-      console.log(reponse);
-      console.log(finalData);
+      if (response.message) {
+        this.triggerModal("Produto", "Produto criado com sucesso!");
+      } else if (!response.ok) {
+        this.triggerModal("Produto", "Houve um problema ao criar o Produto!");
+      }
       this.showNewProductModal = false;
     },
     async handleUserWithdraw(promptValues) {
@@ -291,10 +296,10 @@ export default {
         "PATCH",
         { amount: promptValues.valor }
       );
-      if(response.message) {
-        this.triggerModal('Saque', 'Saque Realizado com sucesso!')
+      if (response.message) {
+        this.triggerModal("Saque", "Saque Realizado com sucesso!");
       } else if (!response.ok) {
-        this.triggerModal('Saque', 'Houve um problema ao realizar o saque!')
+        this.triggerModal("Saque", "Houve um problema ao realizar o saque!");
       }
       console.log(response);
       this.showWithdrawModal = false;
@@ -309,12 +314,12 @@ export default {
       }
     },
     async fetchUserInfo() {
-      this.userInfo = await this.$fetchInfo(
+      this.userInfo = await this.$fetchInfoAuthenticated(
         `users/${this.session.user.id}/info`
       );
     },
     async fetchUserProducts() {
-      this.userProducts = await this.$fetchInfo(
+      this.userProducts = await this.$fetchInfoAuthenticated(
         `users/${this.session.user.id}/products`
       );
     },

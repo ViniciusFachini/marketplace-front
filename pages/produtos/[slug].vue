@@ -102,8 +102,8 @@
             <div class="seller-container">
               <img
                 :src="
-                  sellerInfo.profilePicture
-                    ? sellerInfo.profilePicture
+                  sellerInfo.profile_picture
+                    ? sellerInfo.profile_picture
                     : 'https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png'
                 "
                 alt=""
@@ -114,21 +114,21 @@
                 </div>
                 <div
                   class="seller-container__info--location"
-                  v-if="sellerAddress"
+                  v-if="sellerInfo"
                 >
                   <nuxt-icon name="location" />
-                  {{ sellerAddress.city }} - {{ sellerAddress.state }}
+                  {{ sellerInfo.city }} - {{ sellerInfo.state }}
                 </div>
                 <div class="seller-container__info--transactions">
                   <span class="announced"
-                    >{{ sellerInfo.announcedProducts }} Produtos
+                    >{{ sellerInfo.announced_products }} Produtos
                     Anunciados</span
                   >
                   <span class="canceled"
-                    >{{ sellerInfo.canceledSales }} Vendas Canceladas</span
+                    >{{ sellerInfo.canceled_sales }} Vendas Canceladas</span
                   >
                   <span class="sales"
-                    >{{ sellerInfo.totalSales }} Vendas Realizadas</span
+                    >{{ sellerInfo.sales_done }} Vendas Realizadas</span
                   >
                 </div>
               </div>
@@ -161,7 +161,6 @@ export default {
       productInfo: {},
       currentSlide: 0,
       sellerInfo: {},
-      sellerAddress: {},
       showWarningModal: false,
       warningTitle: "O Produto já está no carrinho!",
       warningMessage: "",
@@ -217,6 +216,7 @@ export default {
       this.cartItems = this.$cart.getCart();
     },
   },
+  // /seller
   async mounted() {
     console.log(this.$cart.getCart());
     const route = useRoute();
@@ -225,11 +225,10 @@ export default {
     );
     this.productInfo = await fetchItem;
     const response = await this.$fetchInfo(
-      `users/${this.productInfo.seller_id}/info`
+      `products/${this.productInfo.seller_id}/seller`
     );
-    console.log(this.productInfo);
     this.sellerInfo = await response;
-    this.sellerAddress = await response.addresses.main;
+    console.log(this.sellerInfo);
     this.relatedCategories = await fetchItem.categories.slice(0, 1);
     this.productPremium =
       this.productInfo.categories &&
