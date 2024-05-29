@@ -130,7 +130,7 @@ export default {
       // this.authenticated = await this.$isAuthenticated();
       // if (this.authenticated) {
         // const { session } = await useSession();
-        // const fetchUsersInfo = await this.$useFetch(`users/${session.value.user.id}/info`)
+        // const fetchUsersInfo = await this.$fetchInfo(`users/${session.value.user.id}/info`)
         // const items = this.cartItems;
         // items.forEach(async (item) => {
         //   if (item.seller_id == session.value.user.id) {
@@ -151,7 +151,7 @@ export default {
         //     shipping_method: "Envio Expresso",
         //     status: "Aguardando Pagamento",
         //   };
-        //   const response = await this.$useAuthenticatedFetch(
+        //   const response = await this.$fetchInfoAuthenticated(
         //     "transactions",
         //     "POST",
         //     payload

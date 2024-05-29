@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     async fetchProducts() {
-      const response = await this.$useFetch(`search?query=${this.query}`);
+      const response = await this.$fetchInfo(`search?query=${this.query}`);
       this.productsFetched = response;
       console.log(this.productsFetched);
     },

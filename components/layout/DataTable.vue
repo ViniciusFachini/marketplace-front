@@ -123,6 +123,7 @@ export default {
       pageSize: this.show,
       currentPage: 1,
       selectedFilter: "id",
+      selectedProductDetails: [],
       filterValue: "",
       startDateFilter: "",
       endDateFilter: "",

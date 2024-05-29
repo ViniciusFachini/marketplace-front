@@ -27,7 +27,6 @@
       :disabled="disabled"
       :placeholder="placeholder"
       class="custom-input"
-      :style="inputStyle"
     />
 
     <template v-if="type === 'radio'">
@@ -45,7 +44,6 @@
             :checked="modelValue === option.value"
             @change="$emit('update:modelValue', option.value)"
             :disabled="disabled"
-            :style="inputStyle"
           />
           <label :for="`${inputId}-${index}`">{{ option.text }}</label>
         </div>
@@ -61,7 +59,6 @@
           :checked="modelValue"
           @change="handleCheckboxChange($event)"
           :disabled="disabled"
-          :style="inputStyle"
         />
         <label :for="inputId">{{ label }}</label>
       </div>
@@ -75,7 +72,6 @@
       :id="inputId"
       :disabled="disabled"
       class="custom-input select"
-      :style="inputStyle"
       :multiple="multiSelect"
     >
       <option

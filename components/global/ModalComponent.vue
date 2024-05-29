@@ -64,7 +64,7 @@ export default {
       default: "Modal",
     },
     message: {
-      type: String,
+      type: String || Array,
       default: "",
     },
     confirmButtonText: {

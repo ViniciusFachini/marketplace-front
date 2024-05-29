@@ -60,7 +60,7 @@
     methods: {
     },
     async mounted() {
-        const fetchItens = await this.$useFetch(
+        const fetchItens = await this.$fetchInfo(
           `products`
         );
         this.products = fetchItens;

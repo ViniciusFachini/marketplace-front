@@ -77,7 +77,7 @@ export default {
     const lastCategory = await this.getLastCategory();
     this.catInfo = await lastCategory;
     if (lastCategory.id) {
-      const fetchItens = await this.$useFetch(
+      const fetchItens = await this.$fetchInfo(
         `categories/${lastCategory.id}/products`
       );
       this.products = fetchItens;

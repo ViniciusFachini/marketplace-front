@@ -74,23 +74,23 @@
           />
           <DisplaySaleInfo
             label="Saldo Bloqueado"
-            :value="userInfo.wallet.balance"
+            :value="userInfo.wallet && userInfo.wallet.balance"
             type="price"
           />
           <DisplaySaleInfo
             label="Saldo Disponível"
-            :value="userInfo.wallet.withdrawable_amount"
+            :value="userInfo.wallet && userInfo.wallet.withdrawable_amount"
             type="price"
           />
         </div>
         <h3
-          v-if="userInfo && userInfo.transactions.length > 0"
+          v-if="userInfo.transactions && userInfo.transactions.length > 0"
           class="sales-earnings__title"
         >
           Transações do Usuário
         </h3>
         <div
-          v-if="userInfo && userInfo.transactions.length > 0"
+          v-if="userInfo.transactions && userInfo.transactions.length > 0"
           class="sales-earnings__content"
         >
           <DataTable
@@ -107,9 +107,7 @@
           />
         </div>
       </section>
-      <section
-        class="my-products container"
-      >
+      <section class="my-products container">
         <section class="my-products__title-section">
           <h3 class="my-products__title-section__title">Meus Produtos</h3>
           <span @click="showNewProductModal = true" class="add-product">
@@ -117,7 +115,10 @@
             Adicionar Produto
           </span>
         </section>
-        <ul class="my-products__content" v-if="userProducts && userProducts.length > 0">
+        <ul
+          class="my-products__content"
+          v-if="userProducts && userProducts.length > 0"
+        >
           <DataTable
             :show="5"
             :products="userProducts"
@@ -133,34 +134,40 @@
           />
         </ul>
       </section>
+      <AuthPanel :show="showAuthPanel" @close="closeAuthPanel" />
+      <ModalComponent
+        v-model="showNewProductModal"
+        :title="'Novo Produto'"
+        :message="'Por favor, insira as informações do produto:'"
+        :isPrompt="true"
+        :promptFields="promptFields"
+        :confirmButtonText="'Criar Produto'"
+        :cancelButtonText="'Cancelar'"
+        @confirm="handleNewProduct"
+        class="modal"
+      />
+      <ModalComponent
+        v-model="showWithdrawModal"
+        :title="'Sacar'"
+        :message="'Insira o valor desejado (Mínimo de R$ 20,00):'"
+        :isPrompt="true"
+        :promptFields="withDrawPrompt"
+        :confirmButtonText="'Sacar'"
+        :cancelButtonText="'Cancelar'"
+        @confirm="handleUserWithdraw"
+        class="modal"
+      />
+      <ModalComponent
+        v-model="showModal"
+        :title="modalTitle"
+        :message="modalMessage"
+        isAlert
+      />
     </main>
     <main v-else class="not-authenticated">
       Você não está logado! Clique Aqui para
       <div class="destaque" @click="toggleAuthPanel">Logar</div>
     </main>
-    <AuthPanel :show="showAuthPanel" @close="closeAuthPanel" />
-    <ModalComponent
-      v-model="showNewProductModal"
-      :title="'Novo Produto'"
-      :message="'Por favor, insira as informações do produto:'"
-      :isPrompt="true"
-      :promptFields="promptFields"
-      :confirmButtonText="'Criar Produto'"
-      :cancelButtonText="'Cancelar'"
-      @confirm="handleNewProduct"
-      class="modal"
-    />
-    <ModalComponent
-      v-model="showWithdrawModal"
-      :title="'Sacar'"
-      :message="'Insira o valor desejado (Mínimo de R$ 20,00):'"
-      :isPrompt="true"
-      :promptFields="withDrawPrompt"
-      :confirmButtonText="'Sacar'"
-      :cancelButtonText="'Cancelar'"
-      @confirm="handleUserWithdraw"
-      class="modal"
-    />
   </div>
 </template>
 
@@ -172,6 +179,8 @@ export default {
       showAuthPanel: false,
       session: {},
       categories: [],
+      userInfo: {},
+      userProducts: [],
       memberSince: {},
       showNewProductModal: false,
       showWithdrawModal: false,
@@ -201,11 +210,22 @@ export default {
         { label: "Preço", type: "number", required: true },
         { label: "Imagens", type: "file", multiImages: true, required: true },
       ],
+      showModal: false,
+      modalTitle: "",
+      modalMessage: "",
     };
   },
   methods: {
     toggleAuthPanel() {
       this.showAuthPanel = !this.showAuthPanel;
+    },
+    triggerModal(title, message) {
+      this.modalTitle = title;
+      this.modalMessage = message;
+      this.showModal = true;
+    },
+    handleUserAction(title, message) {
+      this.triggerModal(title, message);
     },
     closeAuthPanel() {
       this.showAuthPanel = false;
@@ -233,7 +253,7 @@ export default {
       this.memberSince = { day, month, year };
     },
     async loadCategories() {
-      const response = await this.$useFetch("categories");
+      const response = await this.$fetchInfo("categories");
       this.categories = response.map((item) => {
         return {
           text: item.name,
@@ -243,8 +263,6 @@ export default {
       this.updatePromptFields();
     },
     async handleNewProduct(promptValues) {
-      const { session } = await useSession();
-      this.session = await session;
       const finalData = {
         seller_id: this.session.user.id,
         name: promptValues.nome,
@@ -258,7 +276,7 @@ export default {
         images: promptValues.imagens,
       };
       console.log(finalData);
-      const reponse = await this.$useAuthenticatedFetch(
+      const reponse = await this.$fetchInfoAuthenticated(
         "products",
         "POST",
         finalData
@@ -268,14 +286,17 @@ export default {
       this.showNewProductModal = false;
     },
     async handleUserWithdraw(promptValues) {
-      const { session } = await useSession();
-      this.session = await session;
-      const response = await this.$useAuthenticatedFetch(
+      const response = await this.$fetchInfoAuthenticated(
         `transactions/${this.session.user.id}/withdraw`,
         "PATCH",
         { amount: promptValues.valor }
       );
-      console.log(promptValues.valor, response);
+      if(response.message) {
+        this.triggerModal('Saque', 'Saque Realizado com sucesso!')
+      } else if (!response.ok) {
+        this.triggerModal('Saque', 'Houve um problema ao realizar o saque!')
+      }
+      console.log(response);
       this.showWithdrawModal = false;
     },
     updatePromptFields() {
@@ -288,22 +309,35 @@ export default {
       }
     },
     async fetchUserInfo() {
-      this.userInfo = await this.$useFetch(
+      this.userInfo = await this.$fetchInfo(
         `users/${this.session.user.id}/info`
       );
     },
+    async fetchUserProducts() {
+      this.userProducts = await this.$fetchInfo(
+        `users/${this.session.user.id}/products`
+      );
+    },
+    async checkUserAuth() {
+      return await this.$isAuthenticated();
+    },
+    async setSessionDeclared() {
+      const { session } = await useSession();
+      this.session = await session;
+    },
   },
   async mounted() {
-    const { session } = await useSession();
-    this.session = await session;
-    await this.fetchUserInfo();
-    this.userProducts = await this.$useFetch(
-      `users/${this.session.user.id}/products`
-    );
-    console.log(this.userInfo);
-    this.extractDateComponents(this.userInfo.createdAt);
-    this.authenticated = await this.$isAuthenticated();
-    this.loadCategories();
+    const response = await this.checkUserAuth();
+
+    if (response) {
+      console.log(response);
+      this.authenticated = true;
+      await this.setSessionDeclared();
+      await this.fetchUserInfo();
+      await this.fetchUserProducts();
+      this.extractDateComponents(this.userInfo.createdAt);
+      await this.loadCategories();
+    }
   },
 };
 </script>

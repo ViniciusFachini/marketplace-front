@@ -73,7 +73,7 @@ export default {
   },
   async mounted() {
     try {
-      const fetchItems = await this.$useFetch(`showcases/${this.showcaseId}`);
+      const fetchItems = await this.$fetchInfo(`showcases/${this.showcaseId}`);
       if (fetchItems && fetchItems.items) {
         this.showcaseInfo = fetchItems; // Assign fetched showcase info directly
         this.showcaseItems = fetchItems.items; // Assign fetched showcase items

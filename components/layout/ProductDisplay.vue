@@ -122,7 +122,7 @@ export default {
     },
   },
   async mounted() {
-      const fetchItens = await this.$useFetch(`categories/${this.$props.categoryId}/products`);
+      const fetchItens = await this.$fetchInfo(`categories/${this.$props.categoryId}/products`);
       if(this.$props.limit) {
           this.products = fetchItens.slice(0, this.$props.limit);
       } else {

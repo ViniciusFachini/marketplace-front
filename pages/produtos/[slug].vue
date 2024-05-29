@@ -220,11 +220,11 @@ export default {
   async mounted() {
     console.log(this.$cart.getCart());
     const route = useRoute();
-    const fetchItem = await this.$useFetch(
+    const fetchItem = await this.$fetchInfo(
       `products/slug/${route.params.slug}`
     );
     this.productInfo = await fetchItem;
-    const response = await this.$useFetch(
+    const response = await this.$fetchInfo(
       `users/${this.productInfo.seller_id}/info`
     );
     console.log(this.productInfo);

@@ -36,7 +36,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                     return true
                 }
             },
-            useAuthenticatedFetch: async (endpoint, method = 'get', reqBody = null) => {
+            fetchInfoAuthenticated: async (endpoint, method = 'get', reqBody = null) => {
                 const token = session.value.token && validateToken()
                 if (token) {
                     const config = {
@@ -54,18 +54,30 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                             const jsonData = await response.json();
                             return jsonData;
                         } else {
-                            throw new Error(`Request failed with status: ${response.status} - ${response.statusText}`);
+                            console.error(`Request failed with status: ${response.status} - ${response.statusText}`)
+                            return response
                         }
                     } catch (error) {
                         console.error('Fetch error:', error.message);
                         throw error;
+                    } finally {
                     }
                 }
             },
             isAuthenticated: async () => {
-                return session.value.token && validateToken() ? true : false
+                try {
+                    if (session.value.token && session.value.token.length > 1) {
+                        const valid = await validateToken();
+                        if (valid) {
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error occurred while checking authentication status:", error);
+                }
+                return false; // Explicitly return false if token is invalid or missing
             },
-            useFetch: async (endpoint, method = 'get') => {
+            fetchInfo: async (endpoint, method = 'get') => {
                 const config = {
                     method: method,
                     headers: {
@@ -78,7 +90,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                         const jsonData = await response.json();
                         return jsonData;
                     } else {
-                        throw new Error(`Request failed with status: ${response.status} - ${response.statusText}`);
+                        console.error(`Request failed with status: ${response.status} - ${response.statusText}`)
                     }
                 } catch (error) {
                     console.error('Fetch error:', error.message);

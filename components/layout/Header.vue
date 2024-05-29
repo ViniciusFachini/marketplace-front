@@ -80,7 +80,7 @@ export default {
     this.cartItemsCount = Array.from(this.$cart.getCart()).length;
     document.addEventListener("click", this.handleClickOutside);
     this.authenticated = await this.$isAuthenticated();
-    const response = await this.$useFetch("categories");
+    const response = await this.$fetchInfo("categories");
     this.categories = await response;
   },
   beforeDestroy() {
