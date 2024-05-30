@@ -26,30 +26,47 @@
         <!-- Step 2: Address Selection -->
         <h2>Step 2: Address Selection</h2>
 
-        <section v-if="address && address.length > 0">
+        <section>
           <ul class="address-list">
             <li
               class="address-list__item"
               v-for="(ad, index) in address"
               :key="index"
               :class="{
-                    selected: ad.isSelected,
-                    'main-address': ad.isMainAddress,
-                  }"
-                  @click="toggleSelection(index)"
+                selected: ad.isSelected,
+                'main-address': ad.isMainAddress,
+              }"
+              @click="toggleSelection(index)"
             >
               <div class="address-body__title">{{ ad.title }}</div>
               <div class="address-body__content">
-                <div
-                  class="address"
-                >
+                <div class="address">
                   {{ ad.street }}, Nº {{ ad.number }} - {{ ad.city }},
                   {{ ad.state }} - {{ ad.postalCode }}
                 </div>
               </div>
             </li>
+            <li
+              class="address-list__item new-address"
+              @click="showNewAddressModal = true"
+            >
+              <nuxt-icon name="plus" />
+              <div class="add-address">Adicionar Endereço</div>
+            </li>
           </ul>
+          <ModalComponent
+            v-model="showNewAddressModal"
+            :title="'Novo Endereço'"
+            :message="'Por favor, insira as informações do teu Endereço'"
+            :isPrompt="true"
+            :promptFields="promptFields"
+            :confirmButtonText="'Cadastrar Endereço'"
+            :cancelButtonText="'Cancelar'"
+            @confirm="handleNewAddress"
+            class="modal"
+          />
         </section>
+
         <!-- Other address fields -->
         <div class="buttons">
           <button type="submit" @click="proceedToNextStep" class="btn">
@@ -69,7 +86,7 @@
           label="Escolha o Método de Pagamento"
           :options="[
             { text: 'Cartão de Débito', value: 'debito' },
-            { texxt: 'Cartão de Crédito', value: 'credito' },
+            { text: 'Cartão de Crédito', value: 'credito' },
             { text: 'PIX', value: 'pix' },
             { text: 'Boleto', value: 'boleto' },
           ]"
@@ -110,7 +127,7 @@
       <div v-else-if="currentStep === 'confirmation'" class="step">
         <!-- Step 5: Confirmation -->
         <h2>Step 5: Confirmation</h2>
-        <p><strong>Full Name:</strong> {{ address.fullName }}</p>
+        <p><strong>Full Name:</strong> {{ address }}</p>
         <p><strong>Payment Method:</strong> {{ paymentMethod }}</p>
         <p><strong>Shipping Option:</strong> {{ shippingOption }}</p>
         <div class="buttons">
@@ -133,11 +150,54 @@ export default {
       showModal: false,
       modalTitle: "",
       modalMessage: "",
+      showNewAddressModal: false,
       currentStep: "overview",
       address: {},
       paymentMethod: "",
       cartItems: [],
       shippingOption: "",
+      promptFields: [
+        { label: "Título", type: "text", required: true },
+        { label: "Rua", type: "text", required: true },
+        { label: "Número", type: "number", required: true },
+        { label: "Bairro", type: "text", required: true },
+        { label: "Cidade", type: "text", required: true },
+        {
+          label: "Estado",
+          type: "select",
+          required: true,
+          options: [
+            { value: "AC", text: "Acre" },
+            { value: "AL", text: "Alagoas" },
+            { value: "AP", text: "Amapá" },
+            { value: "AM", text: "Amazonas" },
+            { value: "BA", text: "Bahia" },
+            { value: "CE", text: "Ceará" },
+            { value: "DF", text: "Distrito Federal" },
+            { value: "ES", text: "Espírito Santo" },
+            { value: "GO", text: "Goiás" },
+            { value: "MA", text: "Maranhão" },
+            { value: "MT", text: "Mato Grosso" },
+            { value: "MS", text: "Mato Grosso do Sul" },
+            { value: "MG", text: "Minas Gerais" },
+            { value: "PA", text: "Pará" },
+            { value: "PB", text: "Paraíba" },
+            { value: "PR", text: "Paraná" },
+            { value: "PE", text: "Pernambuco" },
+            { value: "PI", text: "Piauí" },
+            { value: "RJ", text: "Rio de Janeiro" },
+            { value: "RN", text: "Rio Grande do Norte" },
+            { value: "RS", text: "Rio Grande do Sul" },
+            { value: "RO", text: "Rondônia" },
+            { value: "RR", text: "Roraima" },
+            { value: "SC", text: "Santa Catarina" },
+            { value: "SP", text: "São Paulo" },
+            { value: "SE", text: "Sergipe" },
+            { value: "TO", text: "Tocantins" },
+          ],
+        },
+        { label: "CEP", type: "text", required: true },
+      ],
     };
   },
   computed: {
@@ -159,13 +219,46 @@ export default {
         this.currentStep = "confirmation";
       }
     },
+    capitalizeString(string) {
+      const firstLetter = string.charAt(0);
+      const firstLetterCap = firstLetter.toUpperCase();
+      const remainingLetters = string.slice(1);
+      return firstLetterCap + remainingLetters;
+    },
+    async handleNewAddress(promptValues) {
+      console.log(promptValues);
+      const finalData = {
+        street: promptValues.rua,
+        neighbourhood: promptValues.bairro,
+        number: promptValues.numero,
+        city: promptValues.cidade,
+        state: promptValues.estado,
+        postal_code: promptValues.cep,
+        country: "Brasil",
+        userId: this.session.user.id,
+        title: promptValues.titulo,
+      };
+      console.log(finalData);
+      const response = await this.$fetchInfoAuthenticated(
+        "addresses/create-and-link",
+        "POST",
+        finalData
+      );
+      console.log(response);
+      if (response.message) {
+        this.triggerModal("Endereço", "Endereço criado com sucesso!");
+      } else if (!response.ok) {
+        this.triggerModal("Endereço", "Houve um problema ao criar o Endereço!");
+      }
+      this.showNewAddressModal = false;
+    },
     toggleSelection(index) {
       this.address.forEach((ad, i) => {
         ad.isSelected = i === index ? !ad.isSelected : false;
       });
     },
     selectMainAddress() {
-      const mainAddressIndex = this.address.findIndex(ad => ad.isMainAddress);
+      const mainAddressIndex = this.address.findIndex((ad) => ad.isMainAddress);
       if (mainAddressIndex !== -1) {
         this.address[mainAddressIndex].isSelected = true;
       } else {
@@ -211,8 +304,8 @@ export default {
           quantity: item.quantity,
           total_amount: item.price,
           transaction_type: "Compra",
-          payment_method: this.paymentMethod,
-          shipping_method: this.shippingOption,
+          payment_method: this.capitalizeString(this.paymentMethod),
+          shipping_method: this.capitalizeString(this.shippingOption),
           status: "Aguardando Pagamento",
         };
         try {
@@ -226,7 +319,7 @@ export default {
               "Sucesso!",
               "Operação realizada com sucesso!"
             );
-            cart.removeItem(item.id);
+            this.$cart.removeItem(item.id);
           } else {
             this.handleUserAction(
               "Ocorreu um Problema",
@@ -290,8 +383,7 @@ export default {
   margin: 0 auto;
   padding: 20px;
   background: #f1f1f1;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  min-height: calc(100vh - 375px - 120px);
 }
 
 .items-list {
@@ -327,6 +419,15 @@ export default {
   }
 }
 
+.address-body {
+  &__title {
+    font-size: 24px;
+  }
+  &__content {
+    font-size: 18px;
+  }
+}
+
 .address-list {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -335,11 +436,39 @@ export default {
     padding: 20px;
     border-radius: 8px;
     border: 2px solid transparent;
-    transition: all .2s linear;
+    height: 100%;
+    min-height: 160px;
+    transition: all 0.2s linear;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    gap: 8px;
+    &:hover {
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    }
+    &:hover {
+      background-color: #fcfcfc;
+    }
     cursor: pointer;
     &.selected {
       border-color: #2e97ed;
       background-color: white;
+    }
+    &.new-address {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 0px;
+      justify-content: center;
+      gap: 8px;
+      border: 3px dashed #222;
+      span {
+        width: 24px;
+      }
+      .add-address {
+        font-size: 20px;
+      }
     }
   }
 }
