@@ -7,7 +7,7 @@
       :autoplay="4000"
     >
       <Slide v-for="slide in 10" :key="slide">
-        <img src="http://via.placeholder.com/960x330" />
+        <img src="https://fakeimg.pl/960x330/cccccc/909090" />
       </Slide>
       <template #addons>
         <Navigation />
@@ -15,8 +15,8 @@
       </template>
     </Carousel>
     <div class="banners">
-      <img src="http://via.placeholder.com/450x150" />
-      <img src="http://via.placeholder.com/450x150" />
+      <img src="https://fakeimg.pl/450x150/cccccc/909090" />
+      <img src="https://fakeimg.pl/450x150/cccccc/909090" />
     </div>
   </div>
 </template>

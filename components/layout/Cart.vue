@@ -125,51 +125,50 @@ export default {
       this.warningMessage = this.$cart.getWarning();
     },
     async handlePurchase() {
-      // this.$router.push('/checkout')
-      // this.toggleCart()
       this.authenticated = await this.$isAuthenticated();
       if (this.authenticated) {
-        const { session } = await useSession();
-        const fetchUsersInfo = await this.$fetchInfo(`users/${session.value.user.id}/info`)
-        const items = this.cartItems;
-        items.forEach(async (item) => {
-          if (item.seller_id == session.value.user.id) {
-            this.handleUserAction(
-              "Este Produto é teu!",
-              "Você não pode comprar seu próprio produto"
-            );
-            return;
-          }
-          const payload = {
-            buyer_id: session.value.user.id,
-            seller_id: item.seller_id,
-            product_id: item.id,
-            quantity: item.quantity,
-            total_amount: item.price,
-            transaction_type: "Compra",
-            payment_method: "Cartão de Débito",
-            shipping_method: "Envio Expresso",
-            status: "Aguardando Pagamento",
-          };
-          const response = await this.$fetchInfoAuthenticated(
-            "transactions",
-            "POST",
-            payload
-          );
-          if (response.id) {
-            this.handleUserAction(
-              "Sucesso!",
-              "Operação realizada com sucesso!"
-            );
-            this.removeFromCart(item.id);
-          } else {
-            this.handleUserAction(
-              "Ocorreu um Problema",
-              "Ocorreu um problema na geração do pedido! Favor entre em contato com a administração!"
-            );
-          }
-          console.log(response);
-        });
+        this.$router.push('/checkout')
+        this.toggleCart()
+      //   const { session } = await useSession();
+      //   const items = this.cartItems;
+      //   items.forEach(async (item) => {
+      //     if (item.seller_id == session.value.user.id) {
+      //       this.handleUserAction(
+      //         "Este Produto é teu!",
+      //         "Você não pode comprar seu próprio produto"
+      //       );
+      //       return;
+      //     }
+      //     const payload = {
+      //       buyer_id: session.value.user.id,
+      //       seller_id: item.seller_id,
+      //       product_id: item.id,
+      //       quantity: item.quantity,
+      //       total_amount: item.price,
+      //       transaction_type: "Compra",
+      //       payment_method: "Cartão de Débito",
+      //       shipping_method: "Envio Expresso",
+      //       status: "Aguardando Pagamento",
+      //     };
+      //     const response = await this.$fetchInfoAuthenticated(
+      //       "transactions",
+      //       "POST",
+      //       payload
+      //     );
+      //     if (response.id) {
+      //       this.handleUserAction(
+      //         "Sucesso!",
+      //         "Operação realizada com sucesso!"
+      //       );
+      //       this.removeFromCart(item.id);
+      //     } else {
+      //       this.handleUserAction(
+      //         "Ocorreu um Problema",
+      //         "Ocorreu um problema na geração do pedido! Favor entre em contato com a administração!"
+      //       );
+      //     }
+      //     console.log(response);
+      //   });
       } else {
         this.handleUserAction(
           "Logar",
