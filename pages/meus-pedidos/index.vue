@@ -8,11 +8,12 @@
             :show="5"
             :products="orders"
             :hiddenFields="['buyer_id', 'product_id', 'quantity', 'seller_id', 'transaction_id']"
+            redirectTo="meus-pedidos"
           />
         </div>
       </div>
       <ModalComponent
-        v-model="showModal"
+      v-model="showModal"
         :title="modalTitle"
         :message="modalMessage"
         isAlert
@@ -75,6 +76,7 @@ export default {
   
 <style lang="scss" scoped>
 main {
+  padding-bottom: 64px;
     .my-orders {
         &__title {
         padding-block: 40px 16px;

@@ -61,7 +61,7 @@ export default {
 }
 
 main {
-  min-height: calc(100vh - 140px - 372px);
+  min-height: calc(100vh - 140px - 356px) !important;
 }
 
 .footer-content article.social-media .article-list__item:hover {

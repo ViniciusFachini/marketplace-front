@@ -1,5 +1,5 @@
 <template>
-  <form class="search-input" method="GET" @submit="searchProducts">
+  <form class="search-input" method="GET" @submit.prevent="searchProducts">
     <!-- O componente SpeechRecognition emite o evento "transcription" -->
     <SpeechRecognition class="mic" @transcription="updateSearchTerm" />
     <input

@@ -2,10 +2,12 @@
   <section class="categories">
     <div class="container">
       <span class="departments-title">
-        <nuxt-icon name="menu" />
-        Departamentos
+        <NuxtLink to="/produtos">
+          <nuxt-icon name="menu" />
+          Departamentos
+        </NuxtLink>
       </span>
-      <section class="category-container container">
+      <section class="category-container">
         <ul>
           <li
             v-for="category in categories"
@@ -53,7 +55,8 @@
   justify-content: start;
   position: absolute;
   background: #fff;
-  top: 40px;
+  padding: 20px;
+  top: 30px;
   left: 0;
   width: 100%;
   transition: all 0.2s linear;
@@ -79,10 +82,10 @@
     position: relative;
     &::after {
       content: "";
-      height: calc(100% + 16px);
+      height: calc(100%);
       position: absolute;
       right: 0;
-      top: -80;
+      top: 0;
       width: 2px;
       border-radius: 50%;
       background: #d9d9d9;
@@ -138,15 +141,19 @@
 }
 
 .departments-title {
-  color: #222;
-  gap: 10px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s linear;
-  &:hover {
-    color: #f83a53;
+  a {
+    color: #222;
+    gap: 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s linear;
+    &:hover {
+      color: #f83a53;
+    }
   }
 }
 

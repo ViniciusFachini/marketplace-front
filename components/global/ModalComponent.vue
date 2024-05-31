@@ -152,7 +152,7 @@ export default {
       }
       
       if (originalDetails.seller_address) {
-        originalDetails.seller_address = `${originalDetails.seller_address.street} N.º ${originalDetails.seller_address.number}, ${originalDetails.seller_address.city} - ${originalDetails.seller_address.state}`
+        originalDetails.seller_address = `${originalDetails.seller_address.city} - ${originalDetails.seller_address.state}`
       }
 
       if (originalDetails.createdAt) {

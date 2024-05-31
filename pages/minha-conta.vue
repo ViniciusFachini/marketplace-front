@@ -94,6 +94,7 @@
           class="sales-earnings__content"
         >
           <DataTable
+            redirectTo="vendas"
             showFilter
             :products="userInfo && userInfo.transactions"
             :show="10"
@@ -121,6 +122,7 @@
           v-if="userProducts && userProducts.length > 0"
         >
           <DataTable
+            modal
             showFilter
             :show="5"
             :products="userProducts"

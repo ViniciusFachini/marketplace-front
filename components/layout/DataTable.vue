@@ -52,7 +52,7 @@
         <tr
           v-for="product in paginatedProducts"
           :key="product.id"
-          @click="showModal(product)"
+          @click="handleProductClick(product)"
         >
           <td v-for="field in tableHeaders" :key="field">
             {{ formatFieldValue(product, field) }}
@@ -117,7 +117,12 @@ export default {
     showFilter: {
       type: Boolean,
       default: false,
-    }
+    },
+    modal: {
+      type: Boolean,
+      default: false,
+    },
+    redirectTo: String
   },
   data() {
     return {
@@ -188,13 +193,29 @@ export default {
     },
   },
   methods: {
-    // Function to open modal and pass selected product data
-    showModal(product) {
+    // Function to handle product click based on modal prop
+    handleProductClick(product) {
+      if (this.modal) {
+        this.showProductModal(product);
+      } else {
+        this.navigateToProductPage(product);
+      }
+    },
+    // Function to show the modal
+    showProductModal(product) {
       // Set the selected product details in the component data
       this.selectedProductDetails = JSON.stringify(product); // Adjust as needed
-      
       // Show the modal component by updating its visibility
       this.showModalComponent = true;
+    },
+    // Function to navigate to another page with selected product data
+    navigateToProductPage(product) {
+      if(this.redirectTo == 'meus-pedidos') {
+        this.$router.push(`/meus-pedidos/${product.transaction_id}`);
+      } else if (this.redirectTo == 'vendas') {
+        this.$router.push(`/vendas/${product.id}`);
+      }
+      // Assuming the target route is named 'product-details' and accepts an 'id' parameter
     },
     // Your existing methods
     previousPage() {
@@ -211,14 +232,26 @@ export default {
       this.currentPage = page;
     },
     formatField(value, field) {
-      if (field === "price" || field === "totalAmount" || field === "total_amount") {
+      if (
+        field === "price" ||
+        field === "totalAmount" ||
+        field === "total_amount"
+      ) {
         return this.formatPrice(value);
       }
-      if (field === 'buyer_address' || field === 'buyerAddress' || field === 'seller_address' || field === 'sellerAddress') {
-        return `${value.street} N.º ${value.number}, ${value.city} - ${value.state}`
+      if (field === "buyer_address" || field === "buyerAddress") {
+        return `${value.street} N.º ${value.number}, ${value.city} - ${value.state}`;
       }
-      if (field === 'created_at' || field === 'updated_at' || field === 'createdAt' || field === 'updatedAt') {
-        return this.formatDate(value)
+      if (field === "seller_address" || field === "sellerAddress") {
+        return `${value.city} - ${value.state}`;
+      }
+      if (
+        field === "created_at" ||
+        field === "updated_at" ||
+        field === "createdAt" ||
+        field === "updatedAt"
+      ) {
+        return this.formatDate(value);
       }
       // Handle other fields if needed
       return value;

@@ -24,7 +24,7 @@
 
       <div v-else-if="currentStep === 'address'" class="step">
         <!-- Step 2: Address Selection -->
-        <h2>Step 2: Address Selection</h2>
+        <h2>Endereço</h2>
 
         <section>
           <ul class="address-list">
@@ -78,15 +78,14 @@
         </div>
       </div>
 
-      <div v-else-if="currentStep === 'payment'" class="step">
+      <div v-else-if="currentStep === 'payment'" class="step payment">
         <!-- Step 3: Payment Method -->
-        <h2>Step 3: Payment Method</h2>
+        <h2>Pagamento</h2>
         <InputComponent
+          class="column-radio"
           type="radio"
           label="Escolha o Método de Pagamento"
           :options="[
-            { text: 'Cartão de Débito', value: 'debito' },
-            { text: 'Cartão de Crédito', value: 'credito' },
             { text: 'PIX', value: 'pix' },
             { text: 'Boleto', value: 'boleto' },
           ]"
@@ -104,8 +103,9 @@
 
       <div v-else-if="currentStep === 'shipping'" class="step">
         <!-- Step 4: Shipping -->
-        <h2>Step 4: Shipping</h2>
+        <h2>Entrega</h2>
         <InputComponent
+          class="column-radio"
           type="radio"
           label="Escolha o Método de Entrega"
           :options="[
@@ -124,12 +124,42 @@
         </div>
       </div>
 
-      <div v-else-if="currentStep === 'confirmation'" class="step">
+      <div v-else-if="currentStep === 'confirmation'" class="step confirmation">
         <!-- Step 5: Confirmation -->
-        <h2>Step 5: Confirmation</h2>
-        <p><strong>Full Name:</strong> {{ address }}</p>
-        <p><strong>Payment Method:</strong> {{ paymentMethod }}</p>
-        <p><strong>Shipping Option:</strong> {{ shippingOption }}</p>
+        <h2>Confirmação</h2>
+        <div class="confirmation__product">
+          <span>Produto:</span>
+          <li v-for="item in cartItems" :key="item.id" class="item">
+            <div class="image-name">
+              <img :src="item.image" :alt="item.name" />
+              <span>{{ item.name }}</span>
+            </div>
+            <span class="product-price">{{ formatPrice(item.price) }}</span>
+          </li>
+        </div>
+
+        <div class="confirmation__info">
+          <div v-if="selectedAddress" class="confirmation__delivery-address">
+            <span
+              >Será entregue em: {{ selectedAddress.street }} N.º{{
+                selectedAddress.number
+              }}, {{ selectedAddress.city }} - {{ selectedAddress.state }}. CEP:
+              {{ selectedAddress.postalCode }}</span
+            >
+          </div>
+
+          <div class="confirmation__payment-method">
+            <span
+              >Método de Pagamento: {{ capitalizeString(paymentMethod) }}</span
+            >
+          </div>
+
+          <div class="confirmation__shipping">
+            <span>Entrega: {{ capitalizeString(shippingOption) }}</span>
+          </div>
+        </div>
+
+
         <div class="buttons">
           <button @click="confirmOrder" class="btn">Confirm Order</button>
           <button @click="goToPreviousStep" class="btn secondary">
@@ -152,7 +182,7 @@ export default {
       modalMessage: "",
       showNewAddressModal: false,
       currentStep: "overview",
-      address: {},
+      address: [],
       paymentMethod: "",
       cartItems: [],
       shippingOption: "",
@@ -205,6 +235,9 @@ export default {
       if (this.cartItems) {
         return this.cartItems.reduce((total, item) => total + item.price, 0);
       }
+    },
+    selectedAddress() {
+      return this.address.find((ad) => ad.isSelected);
     },
   },
   methods: {
@@ -378,6 +411,18 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.column-radio {
+  .radio-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    margin-top: 20px;
+  }
+}
+</style>
+
 <style lang='scss' scoped>
 .checkout-container {
   margin: 0 auto;
@@ -386,36 +431,54 @@ export default {
   min-height: calc(100vh - 375px - 120px);
 }
 
+.confirmation {
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    gap: 20px;
+    padding-block: 16px;
+    font-size: 18px
+  }
+  &__product {
+    span {
+      margin-bottom: 20px;
+      display: block;
+    }
+  }
+}
+
 .items-list {
   list-style-type: none;
   padding: 0;
-  .item {
+}
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #fff;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  align-items: center;
+  &:hover {
+    box-shadow: 0px 2px 8px 0px rgba(99, 99, 99, 0.2);
+  }
+  .image-name {
     display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    background: #fff;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    cursor: pointer;
     align-items: center;
-    &:hover {
-      box-shadow: 0px 2px 8px 0px rgba(99, 99, 99, 0.2);
-    }
-    .image-name {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 20px;
-    }
-    .product-price {
-      font-size: 20px;
-      font-weight: 500;
-    }
-    img {
-      max-width: 140px;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-    }
+    justify-content: flex-start;
+    gap: 20px;
+  }
+  .product-price {
+    font-size: 20px;
+    font-weight: 500;
+  }
+  img {
+    max-width: 140px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
   }
 }
 
@@ -484,6 +547,11 @@ export default {
     justify-content: space-between;
     .value {
       font-size: 1.5rem;
+    }
+  }
+  &.confirmation {
+    h2 {
+      margin-bottom: 20px;
     }
   }
 }
