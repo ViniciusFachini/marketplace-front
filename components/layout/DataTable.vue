@@ -122,7 +122,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    redirectTo: String
+    redirectTo: String,
   },
   data() {
     return {
@@ -210,10 +210,12 @@ export default {
     },
     // Function to navigate to another page with selected product data
     navigateToProductPage(product) {
-      if(this.redirectTo == 'meus-pedidos') {
+      if (this.redirectTo == "meus-pedidos") {
         this.$router.push(`/meus-pedidos/${product.transaction_id}`);
-      } else if (this.redirectTo == 'vendas') {
-        this.$router.push(`/vendas/${product.id}`);
+      } else if (this.redirectTo == "minhas-vendas") {
+        this.$router.push(`minha-conta/vendas/${product.id}`);
+      } else if (this.redirectTo == "meus-produtos") {
+        this.$router.push(`minha-conta/produtos/${product.slug}`);
       }
       // Assuming the target route is named 'product-details' and accepts an 'id' parameter
     },

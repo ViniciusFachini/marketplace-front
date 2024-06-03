@@ -7,18 +7,33 @@
       </NuxtLink>
       <h2 class="order__title">Pedido: {{ transactionInfo.id }}</h2>
       <div v-if="transactionInfo.id" class="transaction-details">
-        <button
-          v-if="
-            transactionInfo.status &&
-            transactionInfo.status != 'Concluído' &&
-            transactionInfo.status != 'Entregue' &&
-            transactionInfo.status != 'Enviado'
-          "
-          @click="promptChangeStatus = true"
-          class="recieved"
-        >
-          Alterar Estado
-        </button>
+        <div class="action-wrapper">
+          <button
+            v-if="
+              transactionInfo.status &&
+              transactionInfo.status != 'Concluído' &&
+              transactionInfo.status != 'Aguardando Pagamento' &&
+              transactionInfo.status != 'Entregue' &&
+              transactionInfo.status != 'Enviado'
+            "
+            @click="updateDeliveryState('Enviado')"
+            class="sent"
+          >
+            Produto Enviado
+          </button>
+          <button
+            v-if="
+              transactionInfo.status &&
+              transactionInfo.status != 'Concluído' &&
+              transactionInfo.status != 'Entregue' &&
+              transactionInfo.status != 'Enviado'
+            "
+            @click="updateDeliveryState('Cancelado')"
+            class="cancel"
+          >
+            Cancelar Pedido
+          </button>
+        </div>
         <p>
           <strong>Estado do Pedido: </strong>
           <span :class="statusClass(transactionInfo.status)">
@@ -68,38 +83,15 @@
         </div>
       </NuxtLink>
     </div>
-    <ModalComponent
-      v-model="promptChangeStatus"
-      title="Alterar Estado"
-      message="Tem certeza que deseja realizar esta operação?"
-      @confirm="updateDeliveryState"
-      isPrompt
-      :promptFields="newStatus"
-    />
   </main>
 </template>
     
-    <script>
-import { useRoute } from "vue-router";
-
+<script>
 export default {
   data() {
     return {
       transactionInfo: {},
       productInfo: {},
-      promptChangeStatus: false,
-      newStatus: [
-        {
-          label: "Novo Estado da Transação",
-          type: "select",
-          options: [
-            { text: "Enviado", value: "enviado" },
-            { text: "Cancelado", value: "cancelado" },
-          ],
-          multiSelect: false,
-          required: true,
-        },
-      ],
     };
   },
   methods: {
@@ -108,6 +100,7 @@ export default {
         `transactions/${transaction_id}`
       );
       this.transactionInfo = await response;
+      console.log(response);
       this.transactionInfo.statusHistory =
         this.transactionInfo.statusHistory.reverse();
     },
@@ -117,7 +110,7 @@ export default {
     },
     async updateDeliveryState(data) {
       const route = useRouter();
-      console.log(data.novoestadodatransacao[0])
+      console.log(data);
 
       const transactionId = route.currentRoute.value.params.id;
 
@@ -125,7 +118,7 @@ export default {
         `transactions/${transactionId}`,
         "PATCH",
         {
-          status: this.capitalizeString(data.novoestadodatransacao[0]),
+          status: this.capitalizeString(data),
         }
       );
 
@@ -170,13 +163,45 @@ export default {
           return "";
       }
     },
+    async checkUserAuth() {
+      const authenticated = await this.$isAuthenticated();
+      let isUserPermited;
+      if (authenticated) {
+        await this.getTransaction(this.$route.params.id);
+        await this.setSessionDeclared();
+        const authenticatedUserId = await this.session.value.user.id;
+        if (
+          this.transactionInfo &&
+          this.transactionInfo.seller_id === authenticatedUserId
+        ) {
+          isUserPermited = true;
+        } else {
+          isUserPermited = false;
+        }
+      } else {
+        isUserPermited = false;
+      }
+
+      console.log(isUserPermited);
+
+      return isUserPermited;
+    },
+    async setSessionDeclared() {
+      const { session } = await useSession();
+      this.session = await session;
+    },
   },
   async mounted() {
-    const route = useRoute();
-    const transactionId = route.params.id;
-    await this.getTransaction(transactionId);
-    const productId = this.transactionInfo.product_id;
-    await this.getProductInfo(productId);
+    const response = await this.checkUserAuth();
+    if (response) {
+      const transactionId = this.$route.params.id;
+      await this.getTransaction(transactionId);
+      const productId = this.transactionInfo.product_id;
+      await this.getProductInfo(productId);
+      this.authenticated = true;
+    } else {
+      this.$router.push("/");
+    }
   },
 };
 </script>
@@ -258,22 +283,37 @@ a {
   margin-bottom: 20px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   position: relative;
-  .recieved {
+  .action-wrapper {
     position: absolute;
     right: 20px;
     top: 20px;
-    transition: all 0.2s linear;
-    width: fit-content;
-    padding: 10px 20px;
-    color: white;
-    background-color: #5179ff;
-    border: none;
-    border-radius: 5px;
-    font-weight: 500;
-    font-size: 18px;
-    cursor: pointer;
-    &:hover {
-      background-color: #1e52ff;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    button {
+      transition: all 0.2s linear;
+      width: fit-content;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-weight: 500;
+      font-size: 18px;
+      cursor: pointer;
+      &.sent {
+        color: white;
+        background-color: #5179ff;
+        &:hover {
+          background-color: #1e52ff;
+        }
+      }
+      &.cancel {
+        color: white;
+        background-color: #eb3e3e;
+        &:hover {
+          background-color: darken(#eb3e3e, 15%);
+        }
+      }
     }
   }
 }

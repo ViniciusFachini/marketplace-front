@@ -25,7 +25,7 @@
       <div class="product-price">{{ formatPrice(productData.price) }}</div>
       <div
         :class="
-          productData.product_condition.toLowerCase() == 'novo' ? 'new' : 'used'
+          productData.product_condition.toLowerCase() == 'novo' ? 'new' : productData.product_condition.toLowerCase() == 'usado' ? 'used' : 'semi-new'
         "
         v-text="productData.product_condition"
         class="product-condition"

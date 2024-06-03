@@ -69,6 +69,8 @@ export default {
       console.log(this.session.user.id);
       this.authenticated = true;
       await this.getUserOrders();
+    }else {
+      this.$router.push('/')
     }
   },
 };

@@ -14,6 +14,7 @@
           :multiImages="field.multiImages"
           :multiSelect="field.multiSelect"
           :required="field.required"
+          @options-selected="(selectedOptions) => handleSelectOptions(selectedOptions)"
         />
       </div>
 
@@ -148,11 +149,11 @@ export default {
       }
 
       if (originalDetails.buyer_address) {
-        originalDetails.buyer_address = `${originalDetails.buyer_address.street} N.º ${originalDetails.buyer_address.number}, ${originalDetails.buyer_address.city} - ${originalDetails.buyer_address.state}`
+        originalDetails.buyer_address = `${originalDetails.buyer_address.street} N.º ${originalDetails.buyer_address.number}, ${originalDetails.buyer_address.city} - ${originalDetails.buyer_address.state}`;
       }
-      
+
       if (originalDetails.seller_address) {
-        originalDetails.seller_address = `${originalDetails.seller_address.city} - ${originalDetails.seller_address.state}`
+        originalDetails.seller_address = `${originalDetails.seller_address.city} - ${originalDetails.seller_address.state}`;
       }
 
       if (originalDetails.createdAt) {
@@ -174,7 +175,7 @@ export default {
           originalDetails.totalAmount
         )}`;
       }
-      
+
       if (originalDetails.total_amount) {
         // Convert 'price' to a formatted price string
         originalDetails.total_amount = `${this.formatPrice(
@@ -195,6 +196,9 @@ export default {
         "Field 2": "Value 2",
         "Field 3": "Value 3",
       };
+    },
+    handleSelectOptions(selectedOptions) {
+      console.log("Selected options:", selectedOptions);
     },
   },
   watch: {

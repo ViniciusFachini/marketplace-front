@@ -416,7 +416,7 @@ export default {
   .radio-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: start !important;
     justify-content: center;
     margin-top: 20px;
   }

@@ -78,6 +78,11 @@
             type="price"
           />
           <DisplaySaleInfo
+            label="Ticket Médio"
+            :value="userInfo.totalSalesValue / userInfo.totalSales"
+            type="price"
+          />
+          <DisplaySaleInfo
             label="Saldo Disponível"
             :value="userInfo.wallet && userInfo.wallet.withdrawable_amount"
             type="price"
@@ -94,7 +99,7 @@
           class="sales-earnings__content"
         >
           <DataTable
-            redirectTo="vendas"
+            redirectTo="minhas-vendas"
             showFilter
             :products="userInfo && userInfo.transactions"
             :show="10"
@@ -112,17 +117,17 @@
       <section class="my-products container">
         <section class="my-products__title-section">
           <h3 class="my-products__title-section__title">Meus Produtos</h3>
-          <span @click="showNewProductModal = true" class="add-product">
+          <NuxtLink to="/minha-conta/produtos/novo" class="add-product">
             <nuxt-icon name="plus" />
             Adicionar Produto
-          </span>
+          </NuxtLink>
         </section>
         <ul
           class="my-products__content"
           v-if="userProducts && userProducts.length > 0"
         >
           <DataTable
-            modal
+            redirect-to="meus-produtos"
             showFilter
             :show="5"
             :products="userProducts"
@@ -206,9 +211,9 @@ export default {
           required: true,
           type: "radio",
           options: [
-            { text: "Novo", value: "novo" },
-            { text: "Usado", value: "usado" },
-            { text: "Semi Novo", value: "semi_novo" },
+            { text: "Novo", value: "Novo" },
+            { text: "Usado", value: "Usado" },
+            { text: "Semi Novo", value: "Semi Novo" },
           ],
         },
         { label: "Preço", type: "number", required: true },
@@ -344,6 +349,7 @@ export default {
       await this.fetchUserProducts();
       this.extractDateComponents(this.userInfo.createdAt);
       await this.loadCategories();
+      console.log(this.userInfo)
     }
   },
 };
@@ -388,6 +394,7 @@ main {
         padding: 8px 16px;
         line-height: 2;
         display: flex;
+        text-decoration: none;
         align-items: center;
         border-radius: 5px;
         justify-content: center;
