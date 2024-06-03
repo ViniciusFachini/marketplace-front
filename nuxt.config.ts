@@ -13,8 +13,15 @@ export default defineNuxtConfig({
   plugins: [
     '~/plugins/auth.js',
     '~/plugins/api.js',
-    '~/plugins/cart.js'
+    '~/plugins/cart.js',
+    '~/plugins/chat.js'
   ],
+
+  runtimeConfig: {
+    public: {
+      baseUrl: process.env.BASE_URL
+    }
+  },
 
   modules: [
     '@sidebase/nuxt-session',

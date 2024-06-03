@@ -59,6 +59,7 @@
       :class="{ active: isCartOpen }"
       @cart-toggled="handleCartToggle"
       ref="cart"
+      @cart-updated="handleCartUpdate"
     />
     <AuthPanel :show="showAuthPanel" @close="closeAuthPanel" />
   </header>
@@ -90,6 +91,9 @@ export default {
     toggleMenu() {
       this.isMenuOpen = !this.isMenuOpen;
       document.body.classList.toggle("no-overflow");
+    },
+    handleCartUpdate(a) {
+      this.cartItemsCount = a
     },
     handleCartToggle(isActive) {
       this.isCartOpen = isActive;

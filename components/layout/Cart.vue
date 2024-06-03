@@ -75,18 +75,13 @@ export default {
   },
   methods: {
     toggleCart() {
-      if (this.isActive) {
-        this.isActive = true;
-      } else {
-        this.isActive = false;
-      }
+      this.isActive = !this.isActive;
       this.$emit("cart-toggled", this.isActive);
       document.body.classList.toggle("no-overflow", this.isActive);
     },
     formatPrice(price) {
       const value = parseFloat(price);
-      if (isNaN(value)) {
-      } else {
+      if (!isNaN(value)) {
         return new Intl.NumberFormat("pt-BR", {
           style: "currency",
           currency: "BRL",
@@ -116,10 +111,10 @@ export default {
     removeFromCart(id) {
       this.$cart.removeItem(id);
       this.updateCartItems();
-      this.calculateCartValue();
     },
     updateCartItems() {
       this.cartItems = this.$cart.getCart();
+      this.$emit("cart-updated", this.cartItems.length);
     },
     updateWarningMessage() {
       this.warningMessage = this.$cart.getWarning();
@@ -127,48 +122,8 @@ export default {
     async handlePurchase() {
       this.authenticated = await this.$isAuthenticated();
       if (this.authenticated) {
-        this.$router.push('/checkout')
-        this.toggleCart()
-      //   const { session } = await useSession();
-      //   const items = this.cartItems;
-      //   items.forEach(async (item) => {
-      //     if (item.seller_id == session.value.user.id) {
-      //       this.handleUserAction(
-      //         "Este Produto é teu!",
-      //         "Você não pode comprar seu próprio produto"
-      //       );
-      //       return;
-      //     }
-      //     const payload = {
-      //       buyer_id: session.value.user.id,
-      //       seller_id: item.seller_id,
-      //       product_id: item.id,
-      //       quantity: item.quantity,
-      //       total_amount: item.price,
-      //       transaction_type: "Compra",
-      //       payment_method: "Cartão de Débito",
-      //       shipping_method: "Envio Expresso",
-      //       status: "Aguardando Pagamento",
-      //     };
-      //     const response = await this.$fetchInfoAuthenticated(
-      //       "transactions",
-      //       "POST",
-      //       payload
-      //     );
-      //     if (response.id) {
-      //       this.handleUserAction(
-      //         "Sucesso!",
-      //         "Operação realizada com sucesso!"
-      //       );
-      //       this.removeFromCart(item.id);
-      //     } else {
-      //       this.handleUserAction(
-      //         "Ocorreu um Problema",
-      //         "Ocorreu um problema na geração do pedido! Favor entre em contato com a administração!"
-      //       );
-      //     }
-      //     console.log(response);
-      //   });
+        this.$router.push("/checkout");
+        this.toggleCart();
       } else {
         this.handleUserAction(
           "Logar",
@@ -178,14 +133,22 @@ export default {
       }
     },
   },
+  watch: {
+    cartItems: {
+      handler(newCartItems) {
+        this.calculateCartValue();
+        this.$emit("cart-updated", newCartItems.length);
+      },
+      deep: true,
+    },
+  },
   created() {
     this.updateCartItems();
-    this.calculateCartValue();
   },
 };
 </script>
 
-  <style lang="scss" scoped>
+<style lang="scss" scoped>
 .cart {
   &.active {
     .cart-backdrop {

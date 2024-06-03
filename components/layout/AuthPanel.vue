@@ -312,8 +312,6 @@ export default {
       const result = await this.$validateToken();
       if (result.error) {
         this.$router.push("/");
-      } else {
-        this.$router.push("/minha-conta");
       }
       this.close();
     },

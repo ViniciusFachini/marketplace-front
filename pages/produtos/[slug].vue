@@ -49,11 +49,11 @@
             <nuxt-icon name="premium" />
           </div>
           <div class="button-group">
-            <button class="share">
+            <button @click="copyText" class="share">
               <nuxt-icon name="share" />
               Compartilhar
             </button>
-            <button class="report">
+            <button @click="reportProduct" class="report">
               <nuxt-icon name="report" />
               Denunciar
             </button>
@@ -112,10 +112,7 @@
                 <div class="seller-container__info--name">
                   {{ sellerInfo.name }}
                 </div>
-                <div
-                  class="seller-container__info--location"
-                  v-if="sellerInfo"
-                >
+                <div class="seller-container__info--location" v-if="sellerInfo">
                   <nuxt-icon name="location" />
                   {{ sellerInfo.city }} - {{ sellerInfo.state }}
                 </div>
@@ -136,12 +133,12 @@
           </div>
         </div>
       </div>
-        <div class="product-description">
-          <span class="product-description__title">Descrição do Produto</span>
-          <div class="product-description__content">
-            {{ productInfo.description }}
-          </div>
+      <div class="product-description">
+        <span class="product-description__title">Descrição do Produto</span>
+        <div class="product-description__content">
+          {{ productInfo.description }}
         </div>
+      </div>
       <ProductDisplay
         v-for="category in relatedCategories"
         :key="category.category_id"
@@ -149,6 +146,7 @@
         title="Produtos Relacionados"
         :limit="5"
       />
+      <AuthPanel :show="showAuthPanel" @close="closeAuthPanel" />
     </div>
   </div>
 </template>
@@ -165,11 +163,41 @@ export default {
       warningTitle: "O Produto já está no carrinho!",
       warningMessage: "",
       showConfirmationModal: false,
+      showAuthPanel: false,
       confirmationTitle: "Produto Adicionado ao Carrinho",
       confirmationMessage: "",
     };
   },
   methods: {
+    async reportProduct() {
+      const isAuthenticated = await this.$isAuthenticated()
+      if (!isAuthenticated) {
+        this.toggleAuthPanel()
+      } else {
+        const sessionInfo = await useSession();
+        this.authenticatedUserId = await sessionInfo.session.value.user.id
+        console.log(this.authenticatedUserId)
+        const response = await this.$fetchInfoAuthenticated('messages', 'POST', {
+          receiver_id: 1,
+          content: `O Produto: ${this.productInfo.name} do vendedor ${this.sellerInfo.name} não condiz com as regras.`,
+          is_read: false,
+        })
+        this.$socket.emit('sendMessage', { message: `O Produto: ${this.productInfo.name} do vendedor ${this.sellerInfo.name} não condiz com as regras.` });
+        console.log(response)
+      }
+    },
+    async copyText() {
+      console.log(this.$route)
+      const config = useRuntimeConfig();
+      try {
+        await navigator.clipboard.writeText(`${config.public.baseUrl}${this.$route.fullPath}`);
+        this.showConfirmationModal = true;
+        this.confirmationTitle = `Link Copiado`;
+        this.confirmationMessage = `O link do produto foi copiado com sucesso!`;
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    },
     slideTo(val) {
       this.currentSlide = val;
     },
@@ -182,6 +210,12 @@ export default {
           currency: "BRL",
         }).format(value);
       }
+    },
+    toggleAuthPanel() {
+      this.showAuthPanel = !this.showAuthPanel;
+    },
+    closeAuthPanel() {
+      this.showAuthPanel = false;
     },
     handleAddToCart() {
       const {
@@ -247,19 +281,19 @@ export default {
 .page-wrapper {
   background: #f1f1f1;
   .product-description {
-      &__title {
-        font-size: 18px;
-        font-weight: 500;
-        margin-block: 30px 20px;
-        width: 100%;
-        display: block;
-      }
-      &__content {
-        font-size: 16px;
-        font-weight: 400;
-        line-height: 1.5;
-      }
+    &__title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-block: 30px 20px;
+      width: 100%;
+      display: block;
     }
+    &__content {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+  }
 }
 .product-container {
   display: flex;
