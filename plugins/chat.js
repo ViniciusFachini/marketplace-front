@@ -5,7 +5,6 @@ import { defineNuxtPlugin } from '#app';
 export default defineNuxtPlugin((nuxtApp) => {
     // Initialize Socket.IO client with server URL
     const socket = io('http://localhost:3001');
-    console.log(socket)
     // Inject the socket instance into the app
     nuxtApp.provide('socket', socket);
 

@@ -14,6 +14,12 @@
           <Search />
         </div>
         <div class="user-section">
+          <div v-if="authenticated" class="messages">
+            <NuxtLink to="/minha-conta/mensagens">
+              <nuxt-icon name="messages" />
+              <div class="unseen-messages">{{ unseenMessagesCount }}</div>
+            </NuxtLink>
+          </div>
           <div class="cart" @click="toggleCart">
             <nuxt-icon name="cart" />
             <div class="items-amount">{{ cartItemsCount }}</div>
@@ -25,7 +31,8 @@
                 <nuxt-icon name="user" /> Minha Conta
               </NuxtLink>
               <NuxtLink v-if="authenticated" to="/meus-pedidos">
-                <nuxt-icon name="orders" class="iconkk" /> <span class="text">Meus Pedidos</span>
+                <nuxt-icon name="orders" class="iconkk" />
+                <span class="text">Meus Pedidos</span>
               </NuxtLink>
               <span
                 v-if="!authenticated"
@@ -75,6 +82,7 @@ export default {
       showAuthPanel: false,
       authenticated: false,
       cartItemsCount: 0,
+      unseenMessagesCount: 0,
     };
   },
   async mounted() {
@@ -83,6 +91,10 @@ export default {
     this.authenticated = await this.$isAuthenticated();
     const response = await this.$fetchInfo("categories");
     this.categories = await response;
+
+    const unreadMessages = await this.$fetchInfoAuthenticated('messages/unseen-messages', "GET")
+    this.unseenMessagesCount = await unreadMessages.unreadCount
+
   },
   beforeDestroy() {
     document.removeEventListener("click", this.handleClickOutside);
@@ -93,7 +105,7 @@ export default {
       document.body.classList.toggle("no-overflow");
     },
     handleCartUpdate(a) {
-      this.cartItemsCount = a
+      this.cartItemsCount = a;
     },
     handleCartToggle(isActive) {
       this.isCartOpen = isActive;
@@ -274,6 +286,33 @@ export default {
           }
           @media (max-width: 768px) {
             display: none;
+          }
+        }
+
+        .messages {
+          a {
+            color: white;
+            position: relative;
+            display: block;
+            span {
+              display: block;
+              width: 25px;
+            }
+            .unseen-messages {
+              position: absolute;
+              top: -12px;
+              right: -10px;
+              width: 24px;
+              height: 24px;
+              border-radius: 50%;
+              background: white;
+              border: 2px solid #f83a53;
+              color: black;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 12px;
+            }
           }
         }
 

@@ -12,7 +12,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                 }
                 let response = await fetch('http://localhost:3001/users/login', config)
                 response = await response.json()
-                console.log(response)
                 if (response.token) {
                     update(response)
                 }

@@ -305,7 +305,6 @@ export default {
     },
   },
   async mounted() {
-    this.checkUserAuth();
     const response = await this.checkUserAuth();
     if(response) {
       this.authenticated = true;
