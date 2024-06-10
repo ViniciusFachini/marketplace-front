@@ -1,5 +1,5 @@
 export default defineNuxtPlugin(async (nuxtApp) => {
-    const { session, refresh, update, reset } = await useSession();
+    const { session, refresh, update, reset, overwrite } = await useSession();
     return {
         provide: {
             loginUser: async (userData) => {
@@ -10,10 +10,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                     },
                     body: JSON.stringify(userData)
                 }
-                let response = await fetch('http://localhost:3001/users/login', config)
+                const runtimeConfig = useRuntimeConfig();
+                let response = await fetch(`${runtimeConfig.public.serverUrl}/users/login`, config)
                 response = await response.json()
+                console.log(response)
                 if (response.token) {
-                    update(response)
+                    overwrite(response)
                 }
             },
             registerUser: async (userData) => {
@@ -24,7 +26,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                     },
                     body: JSON.stringify(userData)
                 }
-                let response = await fetch('http://localhost:3001/users/register', config)
+                const runtimeConfig = useRuntimeConfig();
+                let response = await fetch(`${runtimeConfig.public.serverUrl}/users/register`, config)
                 response = await response.json()
                 return response
             }

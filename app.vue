@@ -44,6 +44,15 @@ export default {
   background: #1C232133;
 }
 
+.chatInput {
+  input {
+    outline: none;
+    border-radius: 0 !important;
+    border: none !important;
+    border-bottom-left-radius: 0.375rem !important;
+  }
+}
+
 .payment .article-list .article-list__item .nuxt-icon.nuxt-icon--stroke, .payment .article-list .article-list__item .nuxt-icon.nuxt-icon--stroke * {
   stroke: revert-layer !important;
 }

@@ -64,7 +64,7 @@
     &-wrapper {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: start;
       gap: 16px;
     }
   }
@@ -73,6 +73,9 @@ svg {
   width: 50px;
   height: 50px;
   cursor: pointer;
+  path {
+    width: 100%;
+  }
 }
 </style>
   
@@ -87,7 +90,7 @@ export default {
     updateRating(rating) {
       console.log(rating);
       this.rating = rating;
-      this.$emit('rating-selected', rating); // Emit event with selected rating
+      this.$emit('ratingSelected', rating); // Emit event with selected rating
     },
   },
 };

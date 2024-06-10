@@ -1,7 +1,7 @@
 import { defineNuxtPlugin } from '#app';
 
 export const validateToken = async () => {
-    const { session, refresh, update, reset } = await useSession();
+    const { session } = await useSession();
     const dateString = session.value.createdAt
     let dateObject = new Date(dateString)
     dateObject.setHours(dateObject.getHours() + session.value.expiresIn / 3600)
@@ -9,16 +9,16 @@ export const validateToken = async () => {
     const isTokenValid = !dateObject > dateNow
     if (isTokenValid) {
         // router.push('/login')
-        reset()
+        // reset()
         return false
     } else {
-        update(isTokenValid)
+        // update(isTokenValid)
         return true
     }
 }
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-    const { session, refresh, update, reset } = await useSession();
+    const { session } = await useSession();
     const router = useRouter()
     return {
         provide: {
@@ -28,13 +28,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                 dateObject.setHours(dateObject.getHours() + session.value.expiresIn / 3600)
                 const dateNow = new Date()
                 const isTokenValid = !dateObject > dateNow
-                if (isTokenValid) {
-                    reset()
-                    return false
-                } else {
-                    update(isTokenValid)
-                    return true
-                }
+                return isTokenValid
             },
             fetchInfoAuthenticated: async (endpoint, method = 'get', reqBody = null) => {
                 const token = session.value.token && validateToken()
@@ -48,7 +42,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                         body: reqBody ? JSON.stringify(reqBody) : null
                     }
                     try {
-                        const response = await fetch(`http://localhost:3001/${endpoint}`, config);
+                        const runtimeConfig = useRuntimeConfig();
+                        const response = await fetch(`${runtimeConfig.public.serverUrl}/${endpoint}`, config);
 
                         if (response.ok) {
                             const jsonData = await response.json();
@@ -85,7 +80,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                     },
                 }
                 try {
-                    const response = await fetch(`http://localhost:3001/${endpoint}`, config);
+                    const runtimeConfig = useRuntimeConfig();
+                    const response = await fetch(`${runtimeConfig.public.serverUrl}/${endpoint}`, config);
                     if (response.ok) {
                         const jsonData = await response.json();
                         return jsonData;

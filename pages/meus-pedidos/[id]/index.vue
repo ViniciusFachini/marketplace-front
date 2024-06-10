@@ -17,6 +17,16 @@
         >
           Confirmar Recebimento
         </button>
+        <button
+          v-if="
+            transactionInfo.status &&
+            transactionInfo.status == 'Concluído' 
+          "
+          @click="this.$router.push(`/meus-pedidos/${transactionInfo.id}/avaliar`)"
+          class="review-product"
+        >
+          Avaliar Vendedor
+        </button>
         <p>
           <strong>Estado do Pedido: </strong>
           <span :class="statusClass(transactionInfo.status)">
@@ -238,6 +248,24 @@ a {
   margin-bottom: 20px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   position: relative;
+  .review-product {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    transition: all 0.2s linear;
+    width: fit-content;
+    padding: 10px 20px;
+    color: white;
+    background-color: hsl(113, 100%, 35%);
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 18px;
+    cursor: pointer;
+    &:hover {
+      background-color: hsl(113, 100%, 30%);
+    }
+  }
   .recieved {
     position: absolute;
     right: 20px;
