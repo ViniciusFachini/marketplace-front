@@ -1,20 +1,16 @@
 import { defineNuxtPlugin } from '#app';
 
-export const validateToken = async () => {
+const validateToken = async () => {
     const { session } = await useSession();
     const dateString = session.value.createdAt
     let dateObject = new Date(dateString)
     dateObject.setHours(dateObject.getHours() + session.value.expiresIn / 3600)
     const dateNow = new Date()
-    const isTokenValid = !dateObject > dateNow
-    if (isTokenValid) {
-        // router.push('/login')
-        // reset()
-        return false
-    } else {
-        // update(isTokenValid)
-        return true
-    }
+    const isTokenValid = !dateObject < dateNow;
+    // console.log('Expiração: ', dateObject)
+    // console.log('Agora: ', dateNow)
+    // console.log('Maior: ', dateObject > dateNow ? dateObject : dateNow)
+    return isTokenValid
 }
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -27,8 +23,22 @@ export default defineNuxtPlugin(async (nuxtApp) => {
                 let dateObject = new Date(dateString)
                 dateObject.setHours(dateObject.getHours() + session.value.expiresIn / 3600)
                 const dateNow = new Date()
-                const isTokenValid = !dateObject > dateNow
+                const isTokenValid = !dateObject < dateNow;
+                // console.log('Expiração: ', dateObject)
+                // console.log('Agora: ', dateNow)
+                // console.log('Maior: ', dateObject > dateNow ? dateObject : dateNow)
                 return isTokenValid
+            },
+            isAdmin: async () => {
+                if (session.value.token && session.value.token.length > 1) {
+                    const valid = await validateToken();
+                    const userRole = session.value.user.role.toLowerCase()
+                    if (valid && userRole == 'admin') {
+                        return true
+                    }
+                    return false
+                }
+                return false
             },
             fetchInfoAuthenticated: async (endpoint, method = 'get', reqBody = null) => {
                 const token = session.value.token && validateToken()
