@@ -7,7 +7,7 @@
       :autoplay="4000"
     >
       <Slide v-for="slide in 10" :key="slide">
-        <img src="https://fakeimg.pl/960x330/cccccc/909090" />
+        <img src="https://images.unsplash.com/photo-1752867494500-9ea9322f58c9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
       </Slide>
       <template #addons>
         <Navigation />
@@ -15,8 +15,8 @@
       </template>
     </Carousel>
     <div class="banners">
-      <img src="https://fakeimg.pl/450x150/cccccc/909090" />
-      <img src="https://fakeimg.pl/450x150/cccccc/909090" />
+      <img src="https://plus.unsplash.com/premium_photo-1681426730828-bfee2d13861d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+      <img src="https://plus.unsplash.com/premium_photo-1682090260563-191f8160ca48?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
     </div>
   </div>
 </template>
@@ -46,6 +46,9 @@
     }
     &__slide {
       height: 100%;
+      img {
+        aspect-ratio: 3/1;
+      }
     }
     &__next {
       margin: 0 !important;
@@ -66,6 +69,10 @@
       display: block;
       width: 100%;
       height: 100%;
+    }
+    img {
+      aspect-ratio: 3/1;
+      position: relative;
     }
   }
   @media screen and (max-width: 992px) {
